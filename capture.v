@@ -1,7 +1,8 @@
 module capture
   #(
     parameter integer size = 32,
-    parameter integer max_div = 32
+    parameter integer max_div = 32,
+    parameter integer saddr_w = 24
     )
    (
     // axi stream master output
@@ -57,7 +58,10 @@ module capture
 
     input [size-1:0]            trig_level8_mask,
     input [size-1:0]            trig_level8_type,
-    input [size-1:0]            trig_level8_level
+    input [size-1:0]            trig_level8_level,
+
+    // how many samples to write after trigger
+    input [saddr_w-1:0]         post_trigger_count
     );
 
    // clock divider logic
@@ -110,17 +114,31 @@ module capture
    reg sample_valid;
    reg overrun_det;
    reg [size-1:0] sample_data;
+   reg [saddr_w-1:0] post_trigger_samples;
    assign tdata = sample_data;
    always @(posedge sclk) begin
       if (reset) begin
          sample_valid <= 0;
          sample_data <= 0;
          overrun_det <= 0;
+         post_trigger_samples <= 0;
       end
       else begin
+         // store pre-calculated post-trigger sample count
+         if (!armed) begin
+            if (arm) begin
+               post_trigger_samples <= post_trigger_count;
+            end
+         end
+         if (triggered_out) begin
+            if (post_trigger_samples > 0) begin
+               post_trigger_samples <= post_trigger_samples - 1;
+            end
+         end
+         // always update
          sample_data <= dinput;
-         sample_valid <= tready && arm;
-         overrun_det <= !tready && arm;
+         sample_valid <= tready && (armed || (triggered_out && post_trigger_samples > 0));
+         overrun_det <= !tready && (armed || (triggered_out && post_trigger_samples > 0));
       end
    end
 
@@ -142,6 +160,9 @@ module capture
    end
 
    // trigger logic module
+   wire arm_sig;
+   // prevent re-arming before capture completion
+   assign arm_sig = arm && (post_trigger_samples == 0);
    trigger
      #(.dsize (size))
    trig
@@ -171,7 +192,7 @@ module capture
       .trig_level8_type (trig_level8_type),
       .trig_level8_level (trig_level8_level),
       .dinput (sample_data),
-      .arm (arm),
+      .arm (arm_sig),
       .abort (abort),
       .clk (sclk),
       .reset (reset),

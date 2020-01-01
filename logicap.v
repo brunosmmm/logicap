@@ -2,7 +2,8 @@ module logicap
   #(
     parameter integer size = 32,
     parameter integer max_div = 32,
-    parameter integer fifo_depth = 512
+    parameter integer fifo_depth = 512,
+    parameter integer saddr_w = 24
     )
   (
 
@@ -26,6 +27,7 @@ module logicap
    wire                      capture_arm;
    wire                      capture_triggered;
    wire                      capture_abort;
+   wire [saddr_w-1:0]        post_capture_count;
 
    // glue
    wire [size-1:0] sample_data;
@@ -61,7 +63,8 @@ module logicap
    capture
      #(
        .size (size),
-       .max_div (max_div)
+       .max_div (max_div),
+       .saddr_w (saddr_w)
        )
    cap
      (
@@ -101,7 +104,8 @@ module logicap
       .trig_level7_level (trig_level7_level),
       .trig_level8_mask (trig_level8_mask),
       .trig_level8_type (trig_level8_type),
-      .trig_level8_level (trig_level8_level)
+      .trig_level8_level (trig_level8_level),
+      .post_capture_count (post_capture_count)
       );
 
    // FIFO
