@@ -131,7 +131,7 @@ module capture
             end
          end
          if (triggered_out) begin
-            if (post_trigger_samples > 0) begin
+            if ((post_trigger_samples > 0) && !overrun_det) begin
                post_trigger_samples <= post_trigger_samples - 1;
             end
          end
