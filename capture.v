@@ -70,6 +70,8 @@ module capture
 
    // trigger reset
    reg                          trigger_reset;
+   wire                         master_reset;
+   assign master_reset = trigger_reset || reset;
 
    // clock divider logic
    reg [$clog2(max_div)-1:0]    old_divider;
@@ -142,11 +144,12 @@ module capture
    reg               trigger_wait;
    assign tdata = sample_data;
    always @(posedge sclk) begin
-      if (reset) begin
+      if (master_reset) begin
          sample_valid <= 0;
          sample_data <= 0;
          overrun_det <= 0;
          post_trigger_samples <= 0;
+         minimum_samples <= 0;
          trigger_wait <= 1;
          trigger_pos <= 0;
       end
@@ -194,7 +197,7 @@ module capture
    reg triggered_flag;
    wire triggered_out;
    assign overrun = overrun_flag;
-   assign triggered = triggered_flag;
+   assign triggered = triggered_flag && !master_reset;
    always @(posedge clk) begin
       if (reset) begin
          overrun_flag <= 0;
@@ -247,7 +250,7 @@ module capture
       .arm (arm_sig),
       .abort (abort),
       .clk (sclk),
-      .reset (trigger_reset),
+      .reset (master_reset),
       .triggered (triggered_out),
       .armed (trigger_armed),
       .ignore (trigger_ignore)
