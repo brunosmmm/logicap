@@ -1,4 +1,5 @@
 `define CAPCTL_ARM_INDEX 0
+`define CAPCTL_RESET_INDEX 31
 `define CAPSTAT_ARMED_INDEX 0
 `define CAPSTAT_TRIG_INDEX 1
 `define CAPSTAT_DONE_INDEX 2
@@ -58,6 +59,7 @@ output [31:0] TRIGL7,
 output  ARM,
 output [4:0] CKDIV,
 output [23:0] CSIZE,
+output  LRST,
 input  ARMED,
 input  TRIGGERED,
 input  DONE
@@ -128,7 +130,7 @@ input  DONE
     reg [31:0] REG_CAPSTAT;
     localparam [31:0] WRMASK_CAPSTAT = 32'h00000000;
     reg [31:0] REG_CAPCTL;
-    localparam [31:0] WRMASK_CAPCTL = 32'h00000001;
+    localparam [31:0] WRMASK_CAPCTL = 32'h80000001;
     wire  slv_reg_rden;
     wire  slv_reg_wren;
     reg [(C_S_AXI_DATA_WIDTH-1):0] reg_data_out;
@@ -470,6 +472,9 @@ input  DONE
             if (REG_CAPCTL[0]) begin
                 REG_CAPCTL[0] <= 1'h0;
             end
+            if (REG_CAPCTL[31]) begin
+                REG_CAPCTL[31] <= 1'h0;
+            end
         end
     end
     
@@ -639,6 +644,7 @@ input  DONE
     end
     
     //Output assignment
+    assign LRST = REG_CAPCTL[31];
     assign CSIZE = REG_CAPCFG[29:6];
     assign CKDIV = REG_CAPCFG[5:1];
     assign ARM = REG_CAPCTL[0];

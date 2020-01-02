@@ -7,6 +7,7 @@ register CAPCFG description="Capture configuration register";
 
 // control bits
 field CAPCTL.ARM position=0 access=W description="Arm trigger" autoclear="true";
+field CAPCTL.RESET position=31 access=W description="Reset capture logic" autoclear="true";
 field CAPCFG.CKDIV position=5..1 access=RW description="Programmable sample clock divider";
 field CAPCFG.CSIZE position=29..6 access=RW description="Post-trigger sample count";
 
@@ -26,6 +27,7 @@ output TRIGL[0-7] source=TRIGL{0};
 output ARM source=CAPCTL.ARM;
 output CKDIV source=CAPCFG.CKDIV;
 output CSIZE source=CAPCFG.CSIZE;
+output LRST source=CAPCTL.RESET;
 
 // input from core
 input ARMED dest=CAPSTAT.ARMED;
