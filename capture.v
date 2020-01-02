@@ -10,6 +10,7 @@ module capture
     output                      tvalid,
     input                       tready,
     output                      sclk,
+    output                      srst,
 
     // clock divider for sampling rate
     input [$clog2(max_div)-1:0] ckdiv,
@@ -72,6 +73,8 @@ module capture
    reg                          trigger_reset;
    wire                         master_reset;
    assign master_reset = trigger_reset || reset;
+   assign srst = master_reset;
+   assign tvalid = sample_valid;
 
    // clock divider logic
    reg [$clog2(max_div)-1:0]    old_divider;
@@ -99,7 +102,6 @@ module capture
    assign sclk = sample_clk;
    reg [$clog2(max_div)-1:0] div_counter;
    reg                       divider_starting;
-   assign ready = !divider_starting;
    always @(posedge ext_clk) begin
       if (reset) begin
          div_clk <= 0;
@@ -216,6 +218,7 @@ module capture
    // prevent re-arming before capture completion
    assign arm_sig = arm && (post_trigger_samples == 0);
    assign done = triggered_out && (post_trigger_samples == 0);
+   assign ready = !(divider_starting || trigger_armed || (triggered_out && (post_trigger_samples != 0)));
    wire trigger_ignore;
    assign trigger_ignore = overrun_det || trigger_wait;
    trigger

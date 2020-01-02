@@ -223,6 +223,7 @@ module logicap
       .ARMED (capture_armed),
       .TRIGGERED (capture_triggered),
       .DONE (capture_done),
+      .READY (capture_ready),
       .LRST (mm_rst),
       .TRIGPOS (trigger_pos),
       .BUFSIZE (buffer_size)

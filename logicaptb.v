@@ -64,6 +64,12 @@ module logicaptb
       #1 clk <= !clk;
    end
 
+   // test
+   initial begin
+      #31 capture_arm <= 1;
+      #1 capture_arm <= 0;
+   end
+
    // glue
    wire [size-1:0]             sample_data;
    wire                        sample_overrun;
@@ -75,6 +81,7 @@ module logicaptb
    wire                        sample_valid;
    wire                        sample_ready;
    wire                        sample_clk;
+   wire                        sample_reset;
    wire [size-1:0]             dma_data;
    wire                        dma_valid;
    wire                        dma_last;
@@ -94,6 +101,7 @@ module logicaptb
       .tvalid (sample_valid),
       .tready (sample_ready),
       .sclk (sample_clk),
+      .srst (sample_reset),
       .ckdiv (ckdiv),
       .dinput (dinput),
       .clk(clk),
@@ -152,7 +160,7 @@ module logicaptb
       .master_tready (dma_ready),
       .master_clk (clk),
       .slave_clk (sample_clk),
-      .reset (logic_reset)
+      .reset (sample_reset)
       );
 
 endmodule

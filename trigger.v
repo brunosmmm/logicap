@@ -139,7 +139,7 @@ module trigger
          if (!ignore) begin
             old_inputs <= dinput;
          end
-         if (armed) begin
+         if (armed && !ignore) begin
             if (abort) begin
                // abort trigger
                armed <= 0;

@@ -17,6 +17,7 @@ field CAPCFG.CSIZE position=29..6 access=RW description="Post-trigger sample cou
 field CAPSTAT.ARMED position=0 access=R description="Trigger armed flag";
 field CAPSTAT.TRIG position=1 access=R description="Trigger fired";
 field CAPSTAT.DONE position=2 access=R description="Capture finished";
+field CAPSTAT.READY position=3 access=R description="Capture core ready";
 
 // buffer size register
 field CAPBUF.BSIZE position=23..0 access=RW description="Capture buffer size";
@@ -43,3 +44,4 @@ input ARMED dest=CAPSTAT.ARMED;
 input TRIGGERED dest=CAPSTAT.TRIG;
 input DONE dest=CAPSTAT.DONE;
 input TRIGPOS dest=TRIGPOS.TPOS;
+input READY dest=CAPSTAT.READY;
