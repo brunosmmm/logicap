@@ -27,6 +27,7 @@ module capture
     input                       arm,
     input                       abort,
     output                      done,
+    output                      ready,
 
     // trigger configuration
     input [size-1:0]            trig_level1_mask,
@@ -67,6 +68,9 @@ module capture
     output [saddr_w-1:0]        trigger_pos
     );
 
+   // trigger reset
+   reg                          trigger_reset;
+
    // clock divider logic
    reg [$clog2(max_div)-1:0]    old_divider;
    reg                          div_change;
@@ -90,10 +94,14 @@ module capture
    reg sample_clk;
    assign sclk = sample_clk;
    reg [$clog2(max_div)-1:0] div_counter;
+   reg                       divider_starting;
+   assign ready = !divider_starting;
    always @(posedge ext_clk) begin
       if (reset) begin
          sample_clk <= 0;
          div_counter <= 0;
+         trigger_reset <= 1;
+         divider_starting <= 1;
       end
       else begin
          if (div_change) begin
@@ -108,6 +116,11 @@ module capture
             else begin
                div_counter <= 0;
                sample_clk <= !sample_clk;
+               if (divider_starting && sample_clk) begin
+                  // divider startup is complete, release trigger reset
+                  divider_starting <= 0;
+                  trigger_reset <= 0;
+               end
             end
          end
       end
@@ -133,8 +146,8 @@ module capture
       end
       else begin
          // store pre-calculated post-trigger sample count
-         if (!armed) begin
-            if (arm) begin
+         if (!trigger_armed) begin
+            if (arm && !divider_starting) begin
                post_trigger_samples <= post_trigger_count;
                minimum_samples <= buffer_size - post_trigger_count;
                trigger_pos <= 0;
@@ -165,8 +178,8 @@ module capture
          end
          // always update
          sample_data <= dinput;
-         sample_valid <= tready && (armed || (triggered_out && post_trigger_samples > 0));
-         overrun_det <= !tready && (armed || (triggered_out && post_trigger_samples > 0));
+         sample_valid <= tready && (trigger_armed || (triggered_out && post_trigger_samples > 0));
+         overrun_det <= !tready && (trigger_armed || (triggered_out && post_trigger_samples > 0));
       end
    end
 
@@ -189,6 +202,8 @@ module capture
 
    // trigger logic module
    wire arm_sig;
+   wire trigger_armed;
+   assign armed = trigger_armed;
    // prevent re-arming before capture completion
    assign arm_sig = arm && (post_trigger_samples == 0);
    assign done = triggered_out && (post_trigger_samples == 0);
@@ -226,9 +241,9 @@ module capture
       .arm (arm_sig),
       .abort (abort),
       .clk (sclk),
-      .reset (reset),
+      .reset (trigger_reset),
       .triggered (triggered_out),
-      .armed (armed),
+      .armed (trigger_armed),
       .ignore (trigger_ignore)
       );
 

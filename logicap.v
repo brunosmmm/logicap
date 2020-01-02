@@ -56,6 +56,7 @@ module logicap
    wire                      capture_abort;
    wire                      capture_armed;
    wire                      capture_done;
+   wire                      capture_ready;
    wire [saddr_w-1:0]        post_capture_count;
    wire [saddr_w-1:0]        buffer_size;
    wire [saddr_w-1:0]        trigger_pos;
@@ -110,6 +111,7 @@ module logicap
       .arm (capture_arm),
       .armed (capture_armed),
       .abort (capture_abort),
+      .ready (capture_ready),
       .triggered (capture_triggered),
       .done (capture_done),
       .trig_level1_mask (TRIGM1),

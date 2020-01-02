@@ -59,11 +59,18 @@ module logicaptb
       #10000 $finish();
    end
 
+   // generate clock
+   always begin
+      #1 clk <= !clk;
+   end
+
    // glue
    wire [size-1:0]             sample_data;
    wire                        sample_overrun;
    wire                        capture_triggered;
    wire                        capture_done;
+   wire                        capture_armed;
+   wire                        capture_ready;
    wire [saddr_w-1:0]          trigger_pos;
    wire                        sample_valid;
    wire                        sample_ready;
@@ -94,9 +101,11 @@ module logicaptb
       .reset (logic_reset),
       .overrun (sample_overrun),
       .arm (capture_arm),
+      .armed (capture_armed),
       .abort (capture_abort),
       .triggered (capture_triggered),
       .done (capture_done),
+      .ready (capture_ready),
       .trig_level1_mask (TRIGM1),
       .trig_level1_type (TRIGT1),
       .trig_level1_level (TRIGL1),
