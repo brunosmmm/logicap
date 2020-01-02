@@ -11,17 +11,14 @@ module logicap
 
    // input signals
    input [size-1:0]                     dinput,
+   input                                ext_clk,
 
    // data output
-   output [size-1:0]                    tdata,
-   output                               tvalid,
-   output                               tlast,
-   input                                tready,
-
-   input                                clk,
-   input                                ext_clk,
-   input                                reset,
-
+   output [size-1:0]                    S_AXIS_TDATA,
+   output                               S_AXIS_TVALID,
+   output                               S_AXIS_TLAST,
+   input                                S_AXIS_TREADY,
+   input                                S_AXIS_ACLK,
    // AXI MM slave
    input                                S_AXI_ACLK,
    input                                S_AXI_ARESETN,
@@ -46,7 +43,12 @@ module logicap
    input                                S_AXI_RREADY
    );
 
-   // placeholders
+   // logic reset
+   wire                                 logic_reset;
+   wire                                 mm_rst;
+   assign logic_reset = !S_AXI_ARESETN || mm_rst;
+
+   // glue
    reg [$clog2(max_div)-1:0] ckdiv;
    wire                      sample_overrun;
    wire                      capture_arm;
@@ -54,8 +56,6 @@ module logicap
    wire                      capture_abort;
    wire                      capture_done;
    wire [saddr_w-1:0]        post_capture_count;
-
-   // glue
    wire [size-1:0] sample_data;
    wire            sample_valid;
    wire            sample_ready;
@@ -100,9 +100,9 @@ module logicap
       .sclk (sample_clk),
       .ckdiv (ckdiv),
       .dinput (dinput),
-      .clk(clk),
+      .clk(S_AXI_ACLK),
       .ext_clk(ext_clk),
-      .reset (reset),
+      .reset (logic_reset),
       .overrun (sample_overrun),
       .arm (capture_arm),
       .abort (capture_abort),
@@ -146,13 +146,13 @@ module logicap
       .slave_tdata (sample_data),
       .slave_tvalid (sample_valid),
       .slave_tready (sample_ready),
-      .master_tdata (tdata),
-      .master_tvalid (tvalid),
-      .master_tlast (tlast),
-      .master_tready (tready),
-      .master_clk (clk),
+      .master_tdata (S_AXIS_TDATA),
+      .master_tvalid (S_AXIS_TVALID),
+      .master_tlast (S_AXIS_TLAST),
+      .master_tready (S_AXIS_TREADY),
+      .master_clk (S_AXIS_ACLK),
       .slave_clk (sample_clk),
-      .reset (reset)
+      .reset (logic_reset)
       );
 
    //AXI memory mapped control interface
@@ -214,7 +214,8 @@ module logicap
       .CSIZE (post_capture_count),
       .ARMED (capture_armed),
       .TRIGGERED (capture_triggered),
-      .DONE (capture_done)
+      .DONE (capture_done),
+      .LRST (mm_rst)
       );
 
 endmodule
