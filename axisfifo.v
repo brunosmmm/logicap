@@ -30,11 +30,13 @@ module axisfifo
    reg [$clog2(depth-1)-1:0] rdpos;
 
    // hack
-   localparam [$clog2(depth)-1:0] fifo_depth = depth[$clog2(depth)-1:0];
+   localparam [$clog2(depth)-1:0] fifo_depth = depth -1;
    // FIFO signals
    // fullness counter
    wire [$clog2(depth)-1:0] fullness;
-   assign fullness = (wrpos > rdpos) ? wrpos-rdpos + 1 : rdpos-wrpos + 1;
+   assign fullness = (wrpos == rdpos) ? 0 : (wrpos > rdpos) ? wrpos-rdpos + 1 : rdpos-wrpos + 1;
+   assign master_tlast = (fullness == 1);
+
    // full signal
    wire                    ffull;
    assign ffull = fullness == fifo_depth;
