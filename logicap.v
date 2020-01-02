@@ -49,7 +49,7 @@ module logicap
    assign logic_reset = !S_AXI_ARESETN || mm_rst;
 
    // glue
-   reg [$clog2(max_div)-1:0] ckdiv;
+   wire [$clog2(max_div)-1:0] ckdiv;
    wire                      sample_overrun;
    wire                      capture_arm;
    wire                      capture_triggered;
