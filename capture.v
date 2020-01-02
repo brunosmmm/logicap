@@ -26,6 +26,7 @@ module capture
     output                      armed,
     input                       arm,
     input                       abort,
+    output                      done,
 
     // trigger configuration
     input [size-1:0]            trig_level1_mask,
@@ -163,6 +164,7 @@ module capture
    wire arm_sig;
    // prevent re-arming before capture completion
    assign arm_sig = arm && (post_trigger_samples == 0);
+   assign done = triggered_out && (post_trigger_samples == 0);
    trigger
      #(.dsize (size))
    trig
