@@ -91,14 +91,16 @@ module capture
    end
 
    // actual divider
-   reg sample_clk;
+   reg div_clk;
+   wire sample_clk;
+   assign sample_clk = old_divider == 0 ? ext_clk : div_clk;
    assign sclk = sample_clk;
    reg [$clog2(max_div)-1:0] div_counter;
    reg                       divider_starting;
    assign ready = !divider_starting;
    always @(posedge ext_clk) begin
       if (reset) begin
-         sample_clk <= 0;
+         div_clk <= 0;
          div_counter <= 0;
          trigger_reset <= 1;
          divider_starting <= 1;
@@ -107,16 +109,20 @@ module capture
          if (div_change) begin
             // restart
             div_counter <= 0;
-            sample_clk <= 0;
+            div_clk <= 0;
          end
          else begin
-            if (div_counter < old_divider) begin
+            if (old_divider == 0) begin
+               trigger_reset <= 0;
+               divider_starting <= 0;
+            end
+            if (div_counter < old_divider - 1) begin
                div_counter <= div_counter + 1;
             end
             else begin
                div_counter <= 0;
-               sample_clk <= !sample_clk;
-               if (divider_starting && sample_clk) begin
+               div_clk <= !sample_clk;
+               if (divider_starting && div_clk) begin
                   // divider startup is complete, release trigger reset
                   divider_starting <= 0;
                   trigger_reset <= 0;

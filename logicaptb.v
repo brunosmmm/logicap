@@ -12,7 +12,7 @@ module logicaptb
 
    // testbench controlled signals
    wire [$clog2(max_div)-1:0] ckdiv;
-   assign ckdiv = 0;
+   assign ckdiv = 1;
    reg                        capture_arm;
    reg                        capture_abort;
    reg [size-1:0]             dinput;
