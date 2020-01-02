@@ -4,6 +4,8 @@
 register CAPCTL description="Capture control register";
 register CAPSTAT description="Capture status register";
 register CAPCFG description="Capture configuration register";
+register CAPBUF description="Capture buffer size";
+register TRIGPOS description="Trigger position in buffer";
 
 // control bits
 field CAPCTL.ARM position=0 access=W description="Arm trigger" autoclear="true";
@@ -15,6 +17,12 @@ field CAPCFG.CSIZE position=29..6 access=RW description="Post-trigger sample cou
 field CAPSTAT.ARMED position=0 access=R description="Trigger armed flag";
 field CAPSTAT.TRIG position=1 access=R description="Trigger fired";
 field CAPSTAT.DONE position=2 access=R description="Capture finished";
+
+// buffer size register
+field CAPBUF.BSIZE position=23..0 access=RW description="Capture buffer size";
+
+// trigger position
+field TRIGPOS.TPOS position=23..0 access=R description="Trigger position in buffer";
 
 register TRIGM[0-7] description="Level {0} trigger mask" wmask="0xFFFFFFFF";
 register TRIGT[0-7] description="Level {0} trigger type";
@@ -28,8 +36,10 @@ output ARM source=CAPCTL.ARM;
 output CKDIV source=CAPCFG.CKDIV;
 output CSIZE source=CAPCFG.CSIZE;
 output LRST source=CAPCTL.RESET;
+output BUFSIZE source=CAPBUF.BSIZE;
 
 // input from core
 input ARMED dest=CAPSTAT.ARMED;
 input TRIGGERED dest=CAPSTAT.TRIG;
 input DONE dest=CAPSTAT.DONE;
+input TRIGPOS dest=TRIGPOS.TPOS;

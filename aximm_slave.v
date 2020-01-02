@@ -5,6 +5,8 @@
 `define CAPSTAT_DONE_INDEX 2
 `define CAPCFG_CKDIV_INDEX 1
 `define CAPCFG_CSIZE_INDEX 6
+`define CAPBUF_BSIZE_INDEX 0
+`define TRIGPOS_TPOS_INDEX 0
 module aximm_slave
 #(
 parameter integer C_S_AXI_DATA_WIDTH = 32,
@@ -60,9 +62,11 @@ output  ARM,
 output [4:0] CKDIV,
 output [23:0] CSIZE,
 output  LRST,
+output [23:0] BUFSIZE,
 input  ARMED,
 input  TRIGGERED,
-input  DONE
+input  DONE,
+input [23:0] TRIGPOS
 );
     reg [(C_S_AXI_ADDR_WIDTH-1):0] axi_awaddr;
     reg  axi_awready;
@@ -125,6 +129,10 @@ input  DONE
     localparam [31:0] WRMASK_TRIGM1 = 32'h00000000;
     reg [31:0] REG_TRIGM0;
     localparam [31:0] WRMASK_TRIGM0 = 32'h00000000;
+    reg [31:0] REG_TRIGPOS;
+    localparam [31:0] WRMASK_TRIGPOS = 32'h00000000;
+    reg [31:0] REG_CAPBUF;
+    localparam [31:0] WRMASK_CAPBUF = 32'h00FFFFFF;
     reg [31:0] REG_CAPCFG;
     localparam [31:0] WRMASK_CAPCFG = 32'h3FFFFFFE;
     reg [31:0] REG_CAPSTAT;
@@ -213,6 +221,8 @@ input  DONE
             REG_TRIGM2 <= 32'h00000000;
             REG_TRIGM1 <= 32'h00000000;
             REG_TRIGM0 <= 32'h00000000;
+            REG_TRIGPOS <= 32'h00000000;
+            REG_CAPBUF <= 32'h00000000;
             REG_CAPCFG <= 32'h00000000;
             REG_CAPSTAT <= 32'h00000000;
             REG_CAPCTL <= 32'h00000000;
@@ -224,6 +234,8 @@ input  DONE
                     REG_CAPCTL <= REG_CAPCTL;
                     REG_CAPSTAT <= REG_CAPSTAT;
                     REG_CAPCFG <= REG_CAPCFG;
+                    REG_CAPBUF <= REG_CAPBUF;
+                    REG_TRIGPOS <= REG_TRIGPOS;
                     REG_TRIGM0 <= REG_TRIGM0;
                     REG_TRIGM1 <= REG_TRIGM1;
                     REG_TRIGM2 <= REG_TRIGM2;
@@ -276,7 +288,7 @@ input  DONE
                 6'h3: begin
                     for (byte_index = 0; byte_index <= 3; byte_index = (byte_index+1)) begin
                         if (S_AXI_WSTRB[byte_index] == 1) begin
-                            REG_TRIGM0[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
+                            REG_CAPBUF[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
                         end
                     end
                     
@@ -284,7 +296,7 @@ input  DONE
                 6'h4: begin
                     for (byte_index = 0; byte_index <= 3; byte_index = (byte_index+1)) begin
                         if (S_AXI_WSTRB[byte_index] == 1) begin
-                            REG_TRIGM1[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
+                            REG_TRIGPOS[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
                         end
                     end
                     
@@ -292,7 +304,7 @@ input  DONE
                 6'h5: begin
                     for (byte_index = 0; byte_index <= 3; byte_index = (byte_index+1)) begin
                         if (S_AXI_WSTRB[byte_index] == 1) begin
-                            REG_TRIGM2[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
+                            REG_TRIGM0[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
                         end
                     end
                     
@@ -300,7 +312,7 @@ input  DONE
                 6'h6: begin
                     for (byte_index = 0; byte_index <= 3; byte_index = (byte_index+1)) begin
                         if (S_AXI_WSTRB[byte_index] == 1) begin
-                            REG_TRIGM3[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
+                            REG_TRIGM1[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
                         end
                     end
                     
@@ -308,7 +320,7 @@ input  DONE
                 6'h7: begin
                     for (byte_index = 0; byte_index <= 3; byte_index = (byte_index+1)) begin
                         if (S_AXI_WSTRB[byte_index] == 1) begin
-                            REG_TRIGM4[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
+                            REG_TRIGM2[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
                         end
                     end
                     
@@ -316,7 +328,7 @@ input  DONE
                 6'h8: begin
                     for (byte_index = 0; byte_index <= 3; byte_index = (byte_index+1)) begin
                         if (S_AXI_WSTRB[byte_index] == 1) begin
-                            REG_TRIGM5[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
+                            REG_TRIGM3[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
                         end
                     end
                     
@@ -324,7 +336,7 @@ input  DONE
                 6'h9: begin
                     for (byte_index = 0; byte_index <= 3; byte_index = (byte_index+1)) begin
                         if (S_AXI_WSTRB[byte_index] == 1) begin
-                            REG_TRIGM6[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
+                            REG_TRIGM4[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
                         end
                     end
                     
@@ -332,7 +344,7 @@ input  DONE
                 6'hA: begin
                     for (byte_index = 0; byte_index <= 3; byte_index = (byte_index+1)) begin
                         if (S_AXI_WSTRB[byte_index] == 1) begin
-                            REG_TRIGM7[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
+                            REG_TRIGM5[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
                         end
                     end
                     
@@ -340,7 +352,7 @@ input  DONE
                 6'hB: begin
                     for (byte_index = 0; byte_index <= 3; byte_index = (byte_index+1)) begin
                         if (S_AXI_WSTRB[byte_index] == 1) begin
-                            REG_TRIGT0[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
+                            REG_TRIGM6[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
                         end
                     end
                     
@@ -348,7 +360,7 @@ input  DONE
                 6'hC: begin
                     for (byte_index = 0; byte_index <= 3; byte_index = (byte_index+1)) begin
                         if (S_AXI_WSTRB[byte_index] == 1) begin
-                            REG_TRIGT1[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
+                            REG_TRIGM7[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
                         end
                     end
                     
@@ -356,7 +368,7 @@ input  DONE
                 6'hD: begin
                     for (byte_index = 0; byte_index <= 3; byte_index = (byte_index+1)) begin
                         if (S_AXI_WSTRB[byte_index] == 1) begin
-                            REG_TRIGT2[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
+                            REG_TRIGT0[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
                         end
                     end
                     
@@ -364,7 +376,7 @@ input  DONE
                 6'hE: begin
                     for (byte_index = 0; byte_index <= 3; byte_index = (byte_index+1)) begin
                         if (S_AXI_WSTRB[byte_index] == 1) begin
-                            REG_TRIGT3[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
+                            REG_TRIGT1[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
                         end
                     end
                     
@@ -372,7 +384,7 @@ input  DONE
                 6'hF: begin
                     for (byte_index = 0; byte_index <= 3; byte_index = (byte_index+1)) begin
                         if (S_AXI_WSTRB[byte_index] == 1) begin
-                            REG_TRIGT4[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
+                            REG_TRIGT2[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
                         end
                     end
                     
@@ -380,7 +392,7 @@ input  DONE
                 6'h10: begin
                     for (byte_index = 0; byte_index <= 3; byte_index = (byte_index+1)) begin
                         if (S_AXI_WSTRB[byte_index] == 1) begin
-                            REG_TRIGT5[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
+                            REG_TRIGT3[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
                         end
                     end
                     
@@ -388,7 +400,7 @@ input  DONE
                 6'h11: begin
                     for (byte_index = 0; byte_index <= 3; byte_index = (byte_index+1)) begin
                         if (S_AXI_WSTRB[byte_index] == 1) begin
-                            REG_TRIGT6[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
+                            REG_TRIGT4[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
                         end
                     end
                     
@@ -396,7 +408,7 @@ input  DONE
                 6'h12: begin
                     for (byte_index = 0; byte_index <= 3; byte_index = (byte_index+1)) begin
                         if (S_AXI_WSTRB[byte_index] == 1) begin
-                            REG_TRIGT7[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
+                            REG_TRIGT5[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
                         end
                     end
                     
@@ -404,7 +416,7 @@ input  DONE
                 6'h13: begin
                     for (byte_index = 0; byte_index <= 3; byte_index = (byte_index+1)) begin
                         if (S_AXI_WSTRB[byte_index] == 1) begin
-                            REG_TRIGL0[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
+                            REG_TRIGT6[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
                         end
                     end
                     
@@ -412,7 +424,7 @@ input  DONE
                 6'h14: begin
                     for (byte_index = 0; byte_index <= 3; byte_index = (byte_index+1)) begin
                         if (S_AXI_WSTRB[byte_index] == 1) begin
-                            REG_TRIGL1[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
+                            REG_TRIGT7[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
                         end
                     end
                     
@@ -420,7 +432,7 @@ input  DONE
                 6'h15: begin
                     for (byte_index = 0; byte_index <= 3; byte_index = (byte_index+1)) begin
                         if (S_AXI_WSTRB[byte_index] == 1) begin
-                            REG_TRIGL2[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
+                            REG_TRIGL0[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
                         end
                     end
                     
@@ -428,7 +440,7 @@ input  DONE
                 6'h16: begin
                     for (byte_index = 0; byte_index <= 3; byte_index = (byte_index+1)) begin
                         if (S_AXI_WSTRB[byte_index] == 1) begin
-                            REG_TRIGL3[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
+                            REG_TRIGL1[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
                         end
                     end
                     
@@ -436,7 +448,7 @@ input  DONE
                 6'h17: begin
                     for (byte_index = 0; byte_index <= 3; byte_index = (byte_index+1)) begin
                         if (S_AXI_WSTRB[byte_index] == 1) begin
-                            REG_TRIGL4[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
+                            REG_TRIGL2[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
                         end
                     end
                     
@@ -444,7 +456,7 @@ input  DONE
                 6'h18: begin
                     for (byte_index = 0; byte_index <= 3; byte_index = (byte_index+1)) begin
                         if (S_AXI_WSTRB[byte_index] == 1) begin
-                            REG_TRIGL5[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
+                            REG_TRIGL3[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
                         end
                     end
                     
@@ -452,12 +464,28 @@ input  DONE
                 6'h19: begin
                     for (byte_index = 0; byte_index <= 3; byte_index = (byte_index+1)) begin
                         if (S_AXI_WSTRB[byte_index] == 1) begin
-                            REG_TRIGL6[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
+                            REG_TRIGL4[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
                         end
                     end
                     
                 end
                 6'h1A: begin
+                    for (byte_index = 0; byte_index <= 3; byte_index = (byte_index+1)) begin
+                        if (S_AXI_WSTRB[byte_index] == 1) begin
+                            REG_TRIGL5[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
+                        end
+                    end
+                    
+                end
+                6'h1B: begin
+                    for (byte_index = 0; byte_index <= 3; byte_index = (byte_index+1)) begin
+                        if (S_AXI_WSTRB[byte_index] == 1) begin
+                            REG_TRIGL6[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
+                        end
+                    end
+                    
+                end
+                6'h1C: begin
                     for (byte_index = 0; byte_index <= 3; byte_index = (byte_index+1)) begin
                         if (S_AXI_WSTRB[byte_index] == 1) begin
                             REG_TRIGL7[(byte_index*8)+:8] <= S_AXI_WDATA[(byte_index*8)+:8];
@@ -554,75 +582,81 @@ input  DONE
                 reg_data_out <= {2'b00, REG_CAPCFG[29:6], REG_CAPCFG[5:1], 1'b0};
             end
             6'h3: begin
-                reg_data_out <= REG_TRIGM0;
+                reg_data_out <= {8'b00000000, REG_CAPBUF[23:0]};
             end
             6'h4: begin
-                reg_data_out <= REG_TRIGM1;
+                reg_data_out <= {8'b00000000, TRIGPOS};
             end
             6'h5: begin
-                reg_data_out <= REG_TRIGM2;
+                reg_data_out <= REG_TRIGM0;
             end
             6'h6: begin
-                reg_data_out <= REG_TRIGM3;
+                reg_data_out <= REG_TRIGM1;
             end
             6'h7: begin
-                reg_data_out <= REG_TRIGM4;
+                reg_data_out <= REG_TRIGM2;
             end
             6'h8: begin
-                reg_data_out <= REG_TRIGM5;
+                reg_data_out <= REG_TRIGM3;
             end
             6'h9: begin
-                reg_data_out <= REG_TRIGM6;
+                reg_data_out <= REG_TRIGM4;
             end
             6'hA: begin
-                reg_data_out <= REG_TRIGM7;
+                reg_data_out <= REG_TRIGM5;
             end
             6'hB: begin
-                reg_data_out <= REG_TRIGT0;
+                reg_data_out <= REG_TRIGM6;
             end
             6'hC: begin
-                reg_data_out <= REG_TRIGT1;
+                reg_data_out <= REG_TRIGM7;
             end
             6'hD: begin
-                reg_data_out <= REG_TRIGT2;
+                reg_data_out <= REG_TRIGT0;
             end
             6'hE: begin
-                reg_data_out <= REG_TRIGT3;
+                reg_data_out <= REG_TRIGT1;
             end
             6'hF: begin
-                reg_data_out <= REG_TRIGT4;
+                reg_data_out <= REG_TRIGT2;
             end
             6'h10: begin
-                reg_data_out <= REG_TRIGT5;
+                reg_data_out <= REG_TRIGT3;
             end
             6'h11: begin
-                reg_data_out <= REG_TRIGT6;
+                reg_data_out <= REG_TRIGT4;
             end
             6'h12: begin
-                reg_data_out <= REG_TRIGT7;
+                reg_data_out <= REG_TRIGT5;
             end
             6'h13: begin
-                reg_data_out <= REG_TRIGL0;
+                reg_data_out <= REG_TRIGT6;
             end
             6'h14: begin
-                reg_data_out <= REG_TRIGL1;
+                reg_data_out <= REG_TRIGT7;
             end
             6'h15: begin
-                reg_data_out <= REG_TRIGL2;
+                reg_data_out <= REG_TRIGL0;
             end
             6'h16: begin
-                reg_data_out <= REG_TRIGL3;
+                reg_data_out <= REG_TRIGL1;
             end
             6'h17: begin
-                reg_data_out <= REG_TRIGL4;
+                reg_data_out <= REG_TRIGL2;
             end
             6'h18: begin
-                reg_data_out <= REG_TRIGL5;
+                reg_data_out <= REG_TRIGL3;
             end
             6'h19: begin
-                reg_data_out <= REG_TRIGL6;
+                reg_data_out <= REG_TRIGL4;
             end
             6'h1A: begin
+                reg_data_out <= REG_TRIGL5;
+            end
+            6'h1B: begin
+                reg_data_out <= REG_TRIGL6;
+            end
+            6'h1C: begin
                 reg_data_out <= REG_TRIGL7;
             end
             
@@ -644,6 +678,7 @@ input  DONE
     end
     
     //Output assignment
+    assign BUFSIZE = REG_CAPBUF[23:0];
     assign LRST = REG_CAPCTL[31];
     assign CSIZE = REG_CAPCFG[29:6];
     assign CKDIV = REG_CAPCFG[5:1];

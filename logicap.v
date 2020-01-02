@@ -54,8 +54,11 @@ module logicap
    wire                      capture_arm;
    wire                      capture_triggered;
    wire                      capture_abort;
+   wire                      capture_armed;
    wire                      capture_done;
    wire [saddr_w-1:0]        post_capture_count;
+   wire [saddr_w-1:0]        buffer_size;
+   wire [saddr_w-1:0]        trigger_pos;
    wire [size-1:0] sample_data;
    wire            sample_valid;
    wire            sample_ready;
@@ -105,6 +108,7 @@ module logicap
       .reset (logic_reset),
       .overrun (sample_overrun),
       .arm (capture_arm),
+      .armed (capture_armed),
       .abort (capture_abort),
       .triggered (capture_triggered),
       .done (capture_done),
@@ -132,7 +136,9 @@ module logicap
       .trig_level8_mask (TRIGM8),
       .trig_level8_type (TRIGT8),
       .trig_level8_level (TRIGL8),
-      .post_trigger_count (post_capture_count)
+      .post_trigger_count (post_capture_count),
+      .buffer_size (buffer_size),
+      .trigger_pos (trigger_pos)
       );
 
    // FIFO
@@ -215,7 +221,9 @@ module logicap
       .ARMED (capture_armed),
       .TRIGGERED (capture_triggered),
       .DONE (capture_done),
-      .LRST (mm_rst)
+      .LRST (mm_rst),
+      .TRIGPOS (trigger_pos),
+      .BUFSIZE (buffer_size)
       );
 
 endmodule

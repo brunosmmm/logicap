@@ -62,7 +62,9 @@ module capture
     input [size-1:0]            trig_level8_level,
 
     // how many samples to write after trigger
-    input [saddr_w-1:0]         post_trigger_count
+    input [saddr_w-1:0]         post_trigger_count,
+    input [saddr_w-1:0]         buffer_size,
+    output [saddr_w-1:0]        trigger_pos
     );
 
    // clock divider logic
@@ -116,6 +118,9 @@ module capture
    reg overrun_det;
    reg [size-1:0] sample_data;
    reg [saddr_w-1:0] post_trigger_samples;
+   reg [saddr_w-1:0] minimum_samples;
+   reg [saddr_w-1:0] trigger_pos;
+   reg               trigger_wait;
    assign tdata = sample_data;
    always @(posedge sclk) begin
       if (reset) begin
@@ -123,12 +128,34 @@ module capture
          sample_data <= 0;
          overrun_det <= 0;
          post_trigger_samples <= 0;
+         trigger_wait <= 1;
+         trigger_pos <= 0;
       end
       else begin
          // store pre-calculated post-trigger sample count
          if (!armed) begin
             if (arm) begin
                post_trigger_samples <= post_trigger_count;
+               minimum_samples <= buffer_size - post_trigger_count;
+               trigger_pos <= 0;
+            end
+         end
+         else begin
+            if (minimum_samples > 1) begin
+               trigger_wait <= 1;
+               minimum_samples <= minimum_samples - 1;
+            end
+            else begin
+               trigger_wait <= 0;
+               minimum_samples <= 0;
+            end
+
+            // catch trigger position in buffer
+            if (trigger_pos < buffer_size) begin
+               trigger_pos <= trigger_pos + 1;
+            end
+            else begin
+               trigger_pos <= 0;
             end
          end
          if (triggered_out) begin
@@ -165,6 +192,8 @@ module capture
    // prevent re-arming before capture completion
    assign arm_sig = arm && (post_trigger_samples == 0);
    assign done = triggered_out && (post_trigger_samples == 0);
+   wire trigger_ignore;
+   assign trigger_ignore = overrun_det || trigger_wait;
    trigger
      #(.dsize (size))
    trig
@@ -200,7 +229,7 @@ module capture
       .reset (reset),
       .triggered (triggered_out),
       .armed (armed),
-      .ignore (overrun_det)
+      .ignore (trigger_ignore)
       );
 
 endmodule
