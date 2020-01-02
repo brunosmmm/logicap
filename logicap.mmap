@@ -1,0 +1,33 @@
+#register_size 32;
+#addr_mode byte;
+
+register CAPCTL description="Capture control register";
+register CAPSTAT description="Capture status register";
+register CAPCFG description="Capture configuration register";
+
+// control bits
+field CAPCTL.ARM position=0 access=W description="Arm trigger" autoclear="true";
+field CAPCFG.CKDIV position=5..1 access=RW description="Programmable sample clock divider";
+field CAPCFG.CSIZE position=29..6 access=RW description="Post-trigger sample count";
+
+// status bits
+field CAPSTAT.ARMED position=0 access=R description="Trigger armed flag";
+field CAPSTAT.TRIG position=1 access=R description="Trigger fired";
+field CAPSTAT.DONE position=2 access=R description="Capture finished";
+
+register TRIGM[0-7] description="Level {0} trigger mask" wmask="0xFFFFFFFF";
+register TRIGT[0-7] description="Level {0} trigger type";
+register TRIGL[0-7] description="Level {0} trigger level";
+
+// output to core
+output TRIGM[0-7] source=TRIGM{0};
+output TRIGT[0-7] source=TRIGT{0};
+output TRIGL[0-7] source=TRIGL{0};
+output ARM source=CAPCTL.ARM;
+output CKDIV source=CAPCFG.CKDIV;
+output CSIZE source=CAPCFG.CSIZE;
+
+// input from core
+input ARMED dest=CAPSTAT.ARMED;
+input TRIGGERED dest=CAPSTAT.TRIG;
+input DONE dest=CAPSTAT.DONE;
