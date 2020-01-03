@@ -3,6 +3,7 @@
 `define CAPSTAT_ARMED_INDEX 0
 `define CAPSTAT_TRIG_INDEX 1
 `define CAPSTAT_DONE_INDEX 2
+`define CAPSTAT_READY_INDEX 3
 `define CAPCFG_CKDIV_INDEX 1
 `define CAPCFG_CSIZE_INDEX 6
 `define CAPBUF_BSIZE_INDEX 0
@@ -66,7 +67,8 @@ output [23:0] BUFSIZE,
 input  ARMED,
 input  TRIGGERED,
 input  DONE,
-input [23:0] TRIGPOS
+input [23:0] TRIGPOS,
+input  READY
 );
     reg [(C_S_AXI_ADDR_WIDTH-1):0] axi_awaddr;
     reg  axi_awready;
@@ -576,7 +578,7 @@ input [23:0] TRIGPOS
                 reg_data_out <= 0;
             end
             6'h1: begin
-                reg_data_out <= {29'b00000000000000000000000000000, DONE, TRIGGERED, ARMED};
+                reg_data_out <= {28'b0000000000000000000000000000, READY, DONE, TRIGGERED, ARMED};
             end
             6'h2: begin
                 reg_data_out <= {2'b00, REG_CAPCFG[29:6], REG_CAPCFG[5:1], 1'b0};
