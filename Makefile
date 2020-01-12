@@ -16,6 +16,9 @@ output.txt: logicaptb config.txt input.txt
 config.txt: config.json cfggen
 	./cfggen $< --output $@
 
+input.txt: input.json inputgen
+	./inputgen $< --output $@
+
 simulate: output.txt
 
 clean:
