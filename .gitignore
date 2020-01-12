@@ -5,3 +5,4 @@ logicaptb
 xgui
 *.pyc
 __pycache__
+config.txt
