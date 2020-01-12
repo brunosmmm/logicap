@@ -1,0 +1,14 @@
+{
+    "trigger_config": [
+        {"mask": 0, "type": 0, "level": 0},
+        {"mask": 0, "type": 0, "level": 0},
+        {"mask": 0, "type": 0, "level": 0},
+        {"mask": 0, "type": 0, "level": 0},
+        {"mask": 0, "type": 0, "level": 0},
+        {"mask": 0, "type": 0, "level": 0},
+        {"mask": 0, "type": 0, "level": 0},
+        {"mask": 0, "type": 0, "level": 0}
+    ],
+    "trigger_pos": 50,
+    "mem_size": 128
+}

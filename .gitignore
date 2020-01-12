@@ -1,5 +1,5 @@
 *.vcd
 triggertb
-logicap
+logicaptb
 *.xml
 xgui
