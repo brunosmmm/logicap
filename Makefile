@@ -10,6 +10,11 @@ all: logicaptb
 logicaptb: $(TEST_PATH)/logicaptb.v $(SRC_FILES)
 	iverilog $(SIM_FLAGS) -o $@ -y$(SRC_PATH) $<
 
+sim_out.txt: logicaptb
+	./logicaptb
+
+simulate: sim_out.txt
+
 clean:
 	rm -rf logicaptb
 
