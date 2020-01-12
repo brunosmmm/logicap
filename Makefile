@@ -19,6 +19,6 @@ config.txt: config.json cfggen
 simulate: output.txt
 
 clean:
-	rm -rf logicaptb
+	rm -rf logicaptb output.txt
 
 .PHONY: clean
