@@ -85,7 +85,7 @@ def _validate_trigger_pos(trigger_pos, **kwargs):
     if "mem_size" not in kwargs:
         raise DeferValidation("mem_size")
 
-    return kwargs["mem_size"] * (trigger_pos / 100.0)
+    return int(kwargs["mem_size"] * (trigger_pos / 100.0))
 
 
 def _validate_mem_size(mem_size, **kwargs):
