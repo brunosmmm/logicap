@@ -3,3 +3,5 @@ triggertb
 logicaptb
 *.xml
 xgui
+*.pyc
+__pycache__
