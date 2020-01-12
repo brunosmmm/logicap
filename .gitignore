@@ -6,3 +6,5 @@ xgui
 *.pyc
 __pycache__
 config.txt
+input.txt
+output.txt
