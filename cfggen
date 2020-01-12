@@ -4,7 +4,8 @@
 from argparse import ArgumentParser
 import json
 
-from logicap.config import validate_config, TestConfigurationError
+from logicap.config import TestConfigurationError
+from logicap.trigger import validate_trigger_config
 
 if __name__ == "__main__":
 
@@ -19,7 +20,7 @@ if __name__ == "__main__":
     try:
         with open(args.config, "r") as cfg:
             config = json.load(cfg)
-            config = validate_config(config)
+            config = validate_trigger_config(config)
     except OSError:
         print("ERROR: cannot open configuration file")
         exit(1)
