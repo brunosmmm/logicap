@@ -39,11 +39,15 @@ def validate_config(config, required_keys, optional_keys):
 
         if key in required_keys:
             # call validate
-            try:
-                transform = required_keys[key](value, **transformed_config)
-            except DeferValidation as defer:
-                deferred_keys[key] = defer.depends
-                continue
+            if required_keys[key] is None:
+                # no validation
+                transform = None
+            else:
+                try:
+                    transform = required_keys[key](value, **transformed_config)
+                except DeferValidation as defer:
+                    deferred_keys[key] = defer.depends
+                    continue
 
         if transform is not None:
             transformed_config[key] = transform
