@@ -21,6 +21,7 @@ module logicaptb
 
    // hack: stuff all configuration registers into an array
    reg [size-1:0]             trigger_cfg [0:24];
+   reg [size+1:0]             input_vector;
 
    // trigger / capture parameters
    wire [saddr_w-1:0]         post_capture_count = trigger_cfg[24];
@@ -51,7 +52,7 @@ module logicaptb
    wire [size-1:0]            TRIGL8 = trigger_cfg[23];
 
    // load configuration
-   integer                    configfile;
+   integer                    configfile, inputfile;
    integer                    configline = 0;
    initial begin
       configfile=$fopen("config.txt", "r");
@@ -88,11 +89,20 @@ module logicaptb
       #1 clk <= !clk;
    end
 
-   // test
+   // read input vector
    initial begin
-      #31 capture_arm <= 1;
-      #1 capture_arm <= 0;
+      #10; //wait for reset to clear
+      inputfile=$fopen("input.txt", "r");
+      if (!inputfile) begin
+         $display("FATAL: could not open input file");
+         $finish();
+      end
+      while(!$feof(inputfile)) begin
+         $fscanf(inputfile, "%h\n", input_vector);
+         #2; // wait for next clock cycle
+      end
    end
+
 
    // glue
    wire [size-1:0]             sample_data;
