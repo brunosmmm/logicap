@@ -102,6 +102,9 @@ module logicaptb
          $fscanf(inputfile, "%h\n", input_vector);
          #2; // wait for next clock cycle
       end
+      // finish simulation if we get here, as there is no more input
+      $display("INFO: no more input available, terminating");
+      $finish();
    end
 
    // write output vector
