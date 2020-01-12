@@ -19,33 +19,57 @@ module logicaptb
    reg                        logic_reset;
    reg                        clk;
 
+   // hack: stuff all configuration registers into an array
+   reg [size-1:0]             trigger_cfg [0:24];
+
    // trigger / capture parameters
-   wire [saddr_w-1:0]         post_capture_count = 64; // set to 50/50
+   wire [saddr_w-1:0]         post_capture_count = trigger_cfg[24];
    wire [saddr_w-1:0]         buffer_size = mem_buffer_size;
-   wire [size-1:0]            TRIGM1 = 0;
-   wire [size-1:0]            TRIGT1 = 0;
-   wire [size-1:0]            TRIGL1 = 0;
-   wire [size-1:0]            TRIGM2 = 0;
-   wire [size-1:0]            TRIGT2 = 0;
-   wire [size-1:0]            TRIGL2 = 0;
-   wire [size-1:0]            TRIGM3 = 0;
-   wire [size-1:0]            TRIGT3 = 0;
-   wire [size-1:0]            TRIGL3 = 0;
-   wire [size-1:0]            TRIGM4 = 0;
-   wire [size-1:0]            TRIGT4 = 0;
-   wire [size-1:0]            TRIGL4 = 0;
-   wire [size-1:0]            TRIGM5 = 0;
-   wire [size-1:0]            TRIGT5 = 0;
-   wire [size-1:0]            TRIGL5 = 0;
-   wire [size-1:0]            TRIGM6 = 0;
-   wire [size-1:0]            TRIGT6 = 0;
-   wire [size-1:0]            TRIGL6 = 0;
-   wire [size-1:0]            TRIGM7 = 0;
-   wire [size-1:0]            TRIGT7 = 0;
-   wire [size-1:0]            TRIGL7 = 0;
-   wire [size-1:0]            TRIGM8 = 0;
-   wire [size-1:0]            TRIGT8 = 0;
-   wire [size-1:0]            TRIGL8 = 0;
+   wire [size-1:0]            TRIGM1 = trigger_cfg[0];
+   wire [size-1:0]            TRIGT1 = trigger_cfg[1];
+   wire [size-1:0]            TRIGL1 = trigger_cfg[2];
+   wire [size-1:0]            TRIGM2 = trigger_cfg[3];
+   wire [size-1:0]            TRIGT2 = trigger_cfg[4];
+   wire [size-1:0]            TRIGL2 = trigger_cfg[5];
+   wire [size-1:0]            TRIGM3 = trigger_cfg[6];
+   wire [size-1:0]            TRIGT3 = trigger_cfg[7];
+   wire [size-1:0]            TRIGL3 = trigger_cfg[8];
+   wire [size-1:0]            TRIGM4 = trigger_cfg[9];
+   wire [size-1:0]            TRIGT4 = trigger_cfg[10];
+   wire [size-1:0]            TRIGL4 = trigger_cfg[11];
+   wire [size-1:0]            TRIGM5 = trigger_cfg[12];
+   wire [size-1:0]            TRIGT5 = trigger_cfg[13];
+   wire [size-1:0]            TRIGL5 = trigger_cfg[14];
+   wire [size-1:0]            TRIGM6 = trigger_cfg[15];
+   wire [size-1:0]            TRIGT6 = trigger_cfg[16];
+   wire [size-1:0]            TRIGL6 = trigger_cfg[17];
+   wire [size-1:0]            TRIGM7 = trigger_cfg[18];
+   wire [size-1:0]            TRIGT7 = trigger_cfg[19];
+   wire [size-1:0]            TRIGL7 = trigger_cfg[20];
+   wire [size-1:0]            TRIGM8 = trigger_cfg[21];
+   wire [size-1:0]            TRIGT8 = trigger_cfg[22];
+   wire [size-1:0]            TRIGL8 = trigger_cfg[23];
+
+   // load configuration
+   integer                    configfile;
+   integer                    configline = 0;
+   initial begin
+      configfile=$fopen("config.txt", "r");
+      if (!configfile) begin
+         $display("FATAL: could not open configuration file");
+         $finish();
+      end
+      while (!$feof(configfile)) begin
+         if (configline < 25) begin
+            $fscanf(configfile, "%h\n", trigger_cfg[configline]);
+            configline = configline + 1;
+         end
+         else begin
+            $display("WARNING: too many values in configuration file");
+         end
+      end
+      $display("INFO: loaded configuration");
+   end
 
    initial begin
       $dumpfile("logicap.vcd");
