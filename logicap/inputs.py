@@ -6,7 +6,11 @@ from logicap.config import (
     DeferValidation,
 )
 
-from logicap.validators import validate_positive_integer, validate_string
+from logicap.validators import (
+    validate_positive_integer,
+    validate_string,
+    ValidateChoice,
+)
 
 EVENT_TYPES = ("initial", "set", "clear", "toggle")
 _EVENT_DEPS = {
@@ -18,11 +22,9 @@ _EVENT_DEPS = {
 
 
 @validate_string
+@ValidateChoice(EVENT_TYPES)
 def _validate_evt_type(evt_type, **kwargs):
     """Validate event type."""
-    if evt_type not in EVENT_TYPES:
-        raise TestConfigurationError(f"unknown event type: '{evt_type}'")
-
     evt_deps = _EVENT_DEPS[evt_type]
     missing_deps = []
     for dep in evt_deps:
