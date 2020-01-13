@@ -8,10 +8,10 @@ from logicap.config import (
 
 EVENT_TYPES = ("initial", "set", "clear", "toggle")
 _EVENT_DEPS = {
-    "initial": ("value"),
-    "set": ("mask"),
-    "clear": ("mask"),
-    "toggle": ("mask"),
+    "initial": ("value",),
+    "set": ("mask",),
+    "clear": ("mask",),
+    "toggle": ("mask",),
 }
 
 
@@ -29,6 +29,7 @@ def _validate_evt_type(evt_type, **kwargs):
         if dep not in kwargs:
             missing_deps.append(dep)
 
+    if missing_deps:
         raise DeferValidation(*missing_deps)
 
     # TODO fail if there are pending defers at end of validation
@@ -68,8 +69,6 @@ def _validate_sequence(seq_data, **kwargs):
     for idx, evt in enumerate(seq_data):
         _evt = validate_config(evt, EVENT_REQ, EVENT_OPT)
         sequence[idx] = _evt
-
-    print(sequence)
 
     return sequence
 
