@@ -6,7 +6,7 @@ from logicap.config import (
     DeferValidation,
 )
 
-from logicap.validators import validate_positive_integer
+from logicap.validators import validate_positive_integer, validate_int_percent
 
 
 def _validate_trigger_config(trigger_config, **kwargs):
@@ -65,12 +65,9 @@ def _validate_trigger_config(trigger_config, **kwargs):
     return result
 
 
+@validate_int_percent
 def _validate_trigger_pos(trigger_pos, **kwargs):
     """Validate trigger position."""
-    if not isinstance(trigger_pos, int):
-        raise TestConfigurationError("position must be integer")
-    if trigger_pos < 0 or trigger_pos > 100:
-        raise TestConfigurationError("position must be in [0, 100] range")
     # depends on mem_size key
     if "mem_size" not in kwargs:
         raise DeferValidation("mem_size")
