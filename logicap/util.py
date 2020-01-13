@@ -1,7 +1,7 @@
 """Utilities."""
 
 from logicap.config import validate_config, DeferValidation
-from logicap.validators import Validator, validate_list
+from logicap.validators import Validator, ValidateType
 
 
 class AutoValidateList(Validator):
@@ -16,7 +16,7 @@ class AutoValidateList(Validator):
     def __call__(self, fn):
         """Decorator."""
 
-        @validate_list
+        @ValidateType((tuple, list))
         def _validate(_value, **kwargs):
             """Perform sub-validation."""
             return fn(
