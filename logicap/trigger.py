@@ -1,12 +1,9 @@
 """Trigger configuration."""
 
-from logicap.config import (
-    validate_config,
-    TestConfigurationError,
-    DeferValidation,
-)
+from logicap.config import validate_config, TestConfigurationError
 
-from logicap.validators import validate_positive_integer, validate_int_percent
+from logicap.validators import validate_int_percent
+from logicap.util import default_validate_pos_int, KeyDependency
 
 
 def _validate_trigger_config(trigger_config, **kwargs):
@@ -66,24 +63,17 @@ def _validate_trigger_config(trigger_config, **kwargs):
 
 
 @validate_int_percent
+@KeyDependency("mem_size")
 def _validate_trigger_pos(trigger_pos, **kwargs):
     """Validate trigger position."""
     # depends on mem_size key
-    if "mem_size" not in kwargs:
-        raise DeferValidation("mem_size")
-
     return int(kwargs["mem_size"] * (trigger_pos / 100.0))
-
-
-@validate_positive_integer
-def _validate_mem_size(mem_size, **kwargs):
-    """Validate mem size."""
 
 
 CONFIGURATION_REQ_KEYS = {
     "trigger_config": _validate_trigger_config,
     "trigger_pos": _validate_trigger_pos,
-    "mem_size": _validate_mem_size,
+    "mem_size": default_validate_pos_int,
 }
 CONFIGURATION_OPT_KEYS = ()
 
