@@ -10,24 +10,20 @@ from logicap.util import (
     AutoValidateList,
 )
 
-TRIGGER_TYPES = ("edge", "level")
+TRIGGER_REQ_KEYS = {
+    "mask": default_validate_int,
+    "type": default_validate_int,
+    "level": default_validate_int,
+}
 
 
-@AutoValidateList(
-    {
-        "mask": default_validate_int,
-        "type": default_validate_int,
-        "level": default_validate_int,
-    }
-)
+@AutoValidateList(TRIGGER_REQ_KEYS)
 def _validate_trigger_config(trigger_config, **kwargs):
     """Validate trigger configuration."""
-    _TRIGGER_KEYS = ("type", "level", "mask")
-
     if len(trigger_config) < 8:
         # missing a few stages, insert blanks
         empty_stages = [
-            {key: 0 for key in _TRIGGER_KEYS}
+            {key: 0 for key in TRIGGER_REQ_KEYS}
             for _ in range(len(trigger_config) - 1, 8)
         ]
         trigger_config.append(empty_stages)
