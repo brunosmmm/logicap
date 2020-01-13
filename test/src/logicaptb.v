@@ -13,9 +13,9 @@ module logicaptb
    // testbench controlled signals
    wire [$clog2(max_div)-1:0] ckdiv;
    assign ckdiv = 1;
-   reg                        capture_arm;
-   reg                        capture_abort;
-   reg [size-1:0]             dinput;
+   wire                        capture_arm;
+   wire                        capture_abort;
+   wire [size-1:0]            dinput;
    reg                        logic_reset;
    reg                        clk;
 
@@ -23,6 +23,9 @@ module logicaptb
    reg [size-1:0]             trigger_cfg [0:24];
    reg [size+1:0]             input_vector;
    wire [31:0]                output_vector;
+   assign capture_arm = input_vector[size];
+   assign capture_abort = input_vector[size+1];
+   assign dinput = input_vector[size-1:0];
 
    // trigger / capture parameters
    wire [saddr_w-1:0]         post_capture_count = trigger_cfg[24];
@@ -81,9 +84,7 @@ module logicaptb
    initial begin
       $dumpfile("logicap.vcd");
       $dumpvars(0, logicaptb);
-      capture_arm <= 0;
-      capture_abort <= 0;
-      dinput <= 0;
+      input_vector <= 0;
       logic_reset <= 1;
       clk <= 0;
       #10 logic_reset <= 0;
