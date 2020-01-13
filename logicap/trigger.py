@@ -6,6 +6,8 @@ from logicap.config import (
     DeferValidation,
 )
 
+from logicap.validators import validate_positive_integer
+
 
 def _validate_trigger_config(trigger_config, **kwargs):
     """Validate trigger configuration."""
@@ -76,13 +78,9 @@ def _validate_trigger_pos(trigger_pos, **kwargs):
     return int(kwargs["mem_size"] * (trigger_pos / 100.0))
 
 
+@validate_positive_integer
 def _validate_mem_size(mem_size, **kwargs):
     """Validate mem size."""
-    if not isinstance(mem_size, int):
-        raise TestConfigurationError("memory size must be integer")
-
-    if mem_size < 0:
-        raise TestConfigurationError("memory size must be a positive integer")
 
 
 CONFIGURATION_REQ_KEYS = {
