@@ -55,8 +55,13 @@ module logicaptb
    // load configuration
    integer                    configfile, inputfile, outputfile;
    integer                    configline = 0;
+   string                     configfname, inputfname, outputfname;
    initial begin
-      configfile=$fopen("config.txt", "r");
+      if (!$value$plusargs("configfile=%s", configfname)) begin
+         $display("FATAL: specify configuration file name with +configfile=<FILE>");
+         $finish();
+      end
+      configfile=$fopen(configfname, "r");
       if (!configfile) begin
          $display("FATAL: could not open configuration file");
          $finish();
@@ -93,7 +98,11 @@ module logicaptb
    // read input vector
    initial begin
       #10; //wait for reset to clear
-      inputfile=$fopen("input.txt", "r");
+      if (!$value$plusargs("inputfile=%s", inputfname)) begin
+         $display("FATAL: specify input file name with +inputfile=<FILE>");
+         $finish();
+      end
+      inputfile=$fopen(inputfname, "r");
       if (!inputfile) begin
          $display("FATAL: could not open input file");
          $finish();
@@ -109,7 +118,11 @@ module logicaptb
 
    // write output vector
    initial begin
-      outputfile=$fopen("output.txt", "w");
+      if (!$value$plusargs("outputfile=%s", outputfname)) begin
+         $display("WARN: using default output.txt as output file");
+         outputfname = "output.txt";
+      end
+      outputfile=$fopen(outputfname, "w");
       if (!outputfile) begin
          $display("FATAL: could not open output file for writing");
          $finish();
