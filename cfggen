@@ -36,11 +36,11 @@ if __name__ == "__main__":
     try:
         with open(args.output, "w") as config_out:
             for stage in trigger_stages:
-                config_out.write("{}\n".format(hex(stage["mask"])))
-                config_out.write("{}\n".format(hex(stage["type"])))
-                config_out.write("{}\n".format(hex(stage["level"])))
+                config_out.write("{}\n".format(hex(stage["mask"])[2:]))
+                config_out.write("{}\n".format(hex(stage["type"])[2:]))
+                config_out.write("{}\n".format(hex(stage["level"])[2:]))
             # write size
-            config_out.write("{}\n".format(hex(config["trigger_pos"])))
+            config_out.write("{}\n".format(hex(config["trigger_pos"])[2:]))
     except OSError:
         print("ERROR: cannot write configuration file")
         exit(1)
