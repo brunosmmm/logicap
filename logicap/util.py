@@ -87,6 +87,33 @@ class KeyDependencyMap(Validator):
         return _validate
 
 
+class KeyDependency(Validator):
+    """Check for dependencies."""
+
+    def __init__(self, *dependencies):
+        """Initialize."""
+        super().__init__()
+        self._deps = dependencies
+
+    def __call__(self, fn):
+        """Decorator."""
+
+        def _validate(_value, **kwargs):
+            """Perform checks."""
+
+            missing_deps = []
+            for dep in self._deps:
+                if dep not in kwargs:
+                    missing_deps.append(dep)
+
+            if missing_deps:
+                raise DeferValidation(*missing_deps)
+
+            return fn(_value, **kwargs)
+
+        return _validate
+
+
 @validate_integer
 def default_validate_int(_value, **kwargs):
     """Default integer validator."""
