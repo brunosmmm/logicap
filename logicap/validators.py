@@ -26,7 +26,7 @@ class ValidateType(Validator):
             """Perform validation."""
             if not isinstance(_value, self.target_type):
                 raise TestConfigurationError(
-                    f"value must be of type '{self.target_type}'"
+                    f"value must be of type '{self.target_type.__name__}'"
                 )
 
             return fn(_value, **kwargs)
@@ -51,6 +51,29 @@ class ValidateIntRange(Validator):
             if _value < self._start or _value > self._end:
                 raise TestConfigurationError(
                     "value out of [{}, {}] range".format(self._start, self._end)
+                )
+            return fn(_value, **kwargs)
+
+        return _validate
+
+
+class ValidateChoice(Validator):
+    """Validate choice from list."""
+
+    def __init__(self, choices):
+        """Initialize."""
+        if not isinstance(choices, (tuple, list)):
+            raise TypeError("choices must be a tuple or list")
+        self._choices = choices
+
+    def __call__(self, fn):
+        """Decorator."""
+
+        def _validate(_value, **kwargs):
+            """Perform validation."""
+            if _value not in self._choices:
+                raise TestConfigurationError(
+                    f"value '{_value}' is not a valid choice"
                 )
             return fn(_value, **kwargs)
 
