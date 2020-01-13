@@ -6,6 +6,8 @@ from logicap.config import (
     DeferValidation,
 )
 
+from logicap.validators import validate_positive_integer, validate_string
+
 EVENT_TYPES = ("initial", "set", "clear", "toggle")
 _EVENT_DEPS = {
     "initial": ("value",),
@@ -15,11 +17,9 @@ _EVENT_DEPS = {
 }
 
 
+@validate_string
 def _validate_evt_type(evt_type, **kwargs):
     """Validate event type."""
-    if not isinstance(evt_type, str):
-        raise TestConfigurationError("event type must be a string")
-
     if evt_type not in EVENT_TYPES:
         raise TestConfigurationError(f"unknown event type: '{evt_type}'")
 
@@ -35,6 +35,7 @@ def _validate_evt_type(evt_type, **kwargs):
     # TODO fail if there are pending defers at end of validation
 
 
+@validate_positive_integer
 def _validate_mask(mask, **kwargs):
     """Validate mask."""
 
@@ -43,6 +44,7 @@ def _validate_time(time, **kwargs):
     """Validate time."""
 
 
+@validate_positive_integer
 def _validate_value(value, **kwargs):
     """Validate value."""
 
