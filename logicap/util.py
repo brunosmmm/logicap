@@ -46,10 +46,7 @@ class AutoValidateDict(Validator):
         def _validate(_value, **kwargs):
             """Perform sub-validation."""
             return fn(
-                {
-                    key: validate_config(entry, self._required, self._optional)
-                    for key, entry in _value.items()
-                },
+                validate_config(_value, self._required, self._optional),
                 **kwargs
             )
 
