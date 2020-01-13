@@ -1,0 +1,8 @@
+{
+    "sequence": [
+        {"event": "initial", "value": "0x00000000"},
+        {"event": "set", "mask": "0x01", "time": {"mode": "rel", "delta": 10}},
+        {"event": "clear", "mask": "0x01", "time": {"mode": "abs", "time": 20}}
+    ],
+    "vector_size": 32
+}
