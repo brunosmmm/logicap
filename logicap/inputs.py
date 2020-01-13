@@ -9,6 +9,7 @@ from logicap.config import (
 from logicap.validators import (
     validate_positive_integer,
     validate_string,
+    validate_list,
     ValidateChoice,
 )
 
@@ -61,11 +62,9 @@ EVENT_OPT = {
 }
 
 
+@validate_list
 def _validate_sequence(seq_data, **kwargs):
     """Validate sequence."""
-    if not isinstance(seq_data, (tuple, list)):
-        raise TestConfigurationError("sequence must be a list")
-
     sequence = {}
     deferred = {}
     for idx, evt in enumerate(seq_data):
