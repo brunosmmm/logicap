@@ -1,6 +1,6 @@
 """Utilities."""
 
-from logicap.config import validate_config
+from logicap.config import validate_config, DeferValidation
 from logicap.validators import Validator, validate_list
 
 
@@ -26,5 +26,33 @@ class AutoValidateList(Validator):
                 ],
                 **kwargs
             )
+
+        return _validate
+
+
+class KeyDependencyMap(Validator):
+    """Check for dependencies."""
+
+    def __init__(self, **dependency_map):
+        """Initialize."""
+        super().__init__()
+        self._depmap = dependency_map
+
+    def __call__(self, fn):
+        """Decorator."""
+
+        def _validate(_value, **kwargs):
+            """Perform checks."""
+
+            missing_deps = []
+            deps = self._depmap[_value]
+            for dep in deps:
+                if dep not in kwargs:
+                    missing_deps.append(dep)
+
+            if missing_deps:
+                raise DeferValidation(*missing_deps)
+
+            return fn(_value, **kwargs)
 
         return _validate
