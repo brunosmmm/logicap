@@ -10,18 +10,18 @@ all: logicaptb
 logicaptb: $(TEST_PATH)/logicaptb.v $(SRC_FILES)
 	iverilog $(SIM_FLAGS) -o $@ -y$(SRC_PATH) $<
 
-output.txt: logicaptb config.txt input.txt
-	./$<
+output%.txt: logicaptb config%.txt input%.txt
+	./$< +configfile=config$(*F).txt +inputfile=input$(*F).txt +outputfile=output$(*F).txt
 
-config.txt: config.json cfggen
+config%.txt: config%.json cfggen
 	./cfggen $< --output $@
 
-input.txt: input.json inputgen
+input%.txt: input%.json inputgen
 	./inputgen $< --output $@
 
-simulate: output.txt
+simulate1: output1.txt logicaptb
 
 clean:
-	rm -rf logicaptb output.txt
+	rm -rf logicaptb output*.txt config*.txt input*.txt
 
-.PHONY: clean
+.PHONY: clean simulate
