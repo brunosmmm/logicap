@@ -116,23 +116,6 @@ module logicaptb
       $finish();
    end
 
-   // write output vector
-   initial begin
-      if (!$value$plusargs("outputfile=%s", outputfname)) begin
-         $display("WARN: using default output.txt as output file");
-         outputfname = "output.txt";
-      end
-      outputfile=$fopen(outputfname, "w");
-      if (!outputfile) begin
-         $display("FATAL: could not open output file for writing");
-         $finish();
-      end
-      while (1) begin
-         $fwrite(outputfile, "%h\n", output_vector);
-         #2; // wait for next clock cycle
-      end
-   end
-
    // glue
    wire [size-1:0]             sample_data;
    wire                        sample_overrun;
@@ -153,6 +136,23 @@ module logicaptb
 
    assign output_vector = {{(32-saddr_w-5){1'b0}},
                            trigger_pos, capture_triggered, capture_done, capture_armed, capture_ready, logic_reset};
+
+   // write output vector
+   initial begin
+      if (!$value$plusargs("outputfile=%s", outputfname)) begin
+         $display("WARN: using default output.txt as output file");
+         outputfname = "output.txt";
+      end
+      outputfile=$fopen(outputfname, "w");
+      if (!outputfile) begin
+         $display("FATAL: could not open output file for writing");
+         $finish();
+      end
+      while (1) begin
+         $fwrite(outputfile, "%h\n", output_vector);
+         #2; // wait for next clock cycle
+      end
+   end
 
    // capture module
    capture
