@@ -14,13 +14,17 @@ def validate_integer(fn):
                 value = int(value)
             except ValueError:
                 try:
-                    value = int(value.lstrip("0x"), 16)
+                    if value.startswith("0x"):
+                        value = value[2:]
+                    value = int(value, 16)
                 except ValueError:
                     try:
+                        if value.startswith("0b"):
+                            value = value[2:]
                         value = int(value.lstrip("0b"), 2)
                     except ValueError:
                         raise TestConfigurationError(
-                            "cannot convert value to integer"
+                            f"cannot convert value to integer: '{value}'"
                         )
         return fn(value, **kwargs)
 
