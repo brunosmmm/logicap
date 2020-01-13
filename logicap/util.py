@@ -1,7 +1,13 @@
 """Utilities."""
 
 from logicap.config import validate_config, DeferValidation
-from logicap.validators import Validator, ValidateType
+from logicap.validators import (
+    Validator,
+    ValidateType,
+    validate_integer,
+    validate_positive_integer,
+    validate_string,
+)
 
 
 class AutoValidateList(Validator):
@@ -79,3 +85,21 @@ class KeyDependencyMap(Validator):
             return fn(_value, **kwargs)
 
         return _validate
+
+
+@validate_integer
+def default_validate_int(_value, **kwargs):
+    """Default integer validator."""
+    return _value
+
+
+@validate_positive_integer
+def default_validate_pos_int(_value, **kwargs):
+    """Default positive integer validator."""
+    return _value
+
+
+@validate_string
+def default_validate_str(_value, **kwargs):
+    """Default string validator."""
+    return _value
