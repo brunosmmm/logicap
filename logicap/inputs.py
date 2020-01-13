@@ -2,13 +2,15 @@
 
 from logicap.config import validate_config
 
-from logicap.validators import (
-    validate_positive_integer,
-    validate_string,
-    ValidateChoice,
-)
+from logicap.validators import validate_string, ValidateChoice
 
-from logicap.util import AutoValidateList, KeyDependencyMap
+from logicap.util import (
+    AutoValidateList,
+    KeyDependencyMap,
+    AutoValidateDict,
+    default_validate_int,
+    default_validate_pos_int,
+)
 
 EVENT_TYPES = ("initial", "set", "clear", "toggle")
 _EVENT_DEPS = {
@@ -27,27 +29,27 @@ def _validate_evt_type(evt_type, **kwargs):
     return evt_type
 
 
-@validate_positive_integer
-def _validate_mask(mask, **kwargs):
-    """Validate mask."""
-    return mask
+@validate_string
+@ValidateChoice(("abs", "rel"))
+def _validate_time_mode(mode, **kwargs):
+    """Validate time mode."""
+    return mode
 
 
+@AutoValidateDict(
+    {"mode": _validate_time_mode},
+    {"delta": default_validate_pos_int, "time": default_validate_pos_int},
+)
 def _validate_time(time, **kwargs):
     """Validate time."""
-
-
-@validate_positive_integer
-def _validate_value(value, **kwargs):
-    """Validate value."""
-    return value
+    return time
 
 
 EVENT_REQ = {"event": _validate_evt_type}
 EVENT_OPT = {
-    "mask": _validate_mask,
+    "mask": default_validate_int,
     "time": _validate_time,
-    "value": _validate_value,
+    "value": default_validate_pos_int,
 }
 
 
