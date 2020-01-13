@@ -4,6 +4,8 @@ from logicap.config import validate_config, DeferValidation
 from logicap.validators import (
     Validator,
     ValidateType,
+    ValidateChoice,
+    ValidateIntRange,
     validate_integer,
     validate_positive_integer,
     validate_string,
@@ -130,3 +132,25 @@ def default_validate_pos_int(_value, **kwargs):
 def default_validate_str(_value, **kwargs):
     """Default string validator."""
     return _value
+
+
+def build_validate_choice(*choices):
+    """Build a choice validator on the fly."""
+
+    @ValidateChoice(choices)
+    def validator_function(_value, **kwargs):
+        """Validator function."""
+        return _value
+
+    return validator_function
+
+
+def build_validate_int_range(start, end):
+    """Build integer range validator on the fly."""
+
+    @ValidateIntRange(start, end)
+    def validator_function(_value, **kwargs):
+        """Validator function."""
+        return _value
+
+    return validator_function
