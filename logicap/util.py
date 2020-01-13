@@ -30,6 +30,32 @@ class AutoValidateList(Validator):
         return _validate
 
 
+class AutoValidateDict(Validator):
+    """Automatically validate dict elements."""
+
+    def __init__(self, required_keys, optional_keys=None):
+        """Initialize."""
+        super().__init__()
+        self._required = required_keys
+        self._optional = optional_keys
+
+    def __call__(self, fn):
+        """Decorator."""
+
+        @ValidateType(dict)
+        def _validate(_value, **kwargs):
+            """Perform sub-validation."""
+            return fn(
+                {
+                    key: validate_config(entry, self._required, self._optional)
+                    for key, entry in _value.items()
+                },
+                **kwargs
+            )
+
+        return _validate
+
+
 class KeyDependencyMap(Validator):
     """Check for dependencies."""
 
