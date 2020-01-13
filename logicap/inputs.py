@@ -38,6 +38,7 @@ def _validate_evt_type(evt_type, **kwargs):
 @validate_positive_integer
 def _validate_mask(mask, **kwargs):
     """Validate mask."""
+    return mask
 
 
 def _validate_time(time, **kwargs):
@@ -47,6 +48,7 @@ def _validate_time(time, **kwargs):
 @validate_positive_integer
 def _validate_value(value, **kwargs):
     """Validate value."""
+    return value
 
 
 EVENT_REQ = {"event": _validate_evt_type}
@@ -55,10 +57,6 @@ EVENT_OPT = {
     "time": _validate_time,
     "value": _validate_value,
 }
-
-
-def _validate_event(evt_data):
-    """Validate event."""
 
 
 def _validate_sequence(seq_data, **kwargs):
