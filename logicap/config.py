@@ -47,28 +47,26 @@ def validate_config(config, required_keys, optional_keys=None):
             key_loc = optional_keys
 
         # call validate
-        failed = False
         if key_loc[key] is None:
             # no validation
-            transform = None
+            transformed_config[key] = value
         else:
             try:
-                transform = key_loc[key](value, **transformed_config)
+                new_value = key_loc[key](value, **transformed_config)
+                if new_value is None:
+                    transformed_config[key] = value
+                else:
+                    transformed_config[key] = new_value
             except DeferValidation as defer:
                 deferred_keys[key] = defer.depends
-                failed = True
-
-        if failed:
-            continue
-
-        if transform is not None:
-            transformed_config[key] = transform
-        else:
-            transformed_config[key] = value
 
     # resolve dependencies
     for key, depends in deferred_keys.items():
-        transform = required_keys[key](config[key], **transformed_config)
+        if key in required_keys:
+            key_loc = required_keys
+        else:
+            key_loc = optional_keys
+        transform = key_loc[key](config[key], **transformed_config)
 
         if transform is not None:
             transformed_config[key] = transform
