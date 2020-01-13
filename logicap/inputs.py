@@ -60,7 +60,7 @@ def _validate_sequence(seq_data, **kwargs):
 
 
 INPUT_REQ = {"sequence": _validate_sequence}
-INPUT_OPT = ()
+INPUT_OPT = {"vector_size": default_validate_pos_int}
 
 
 def validate_input_config(input_config):
