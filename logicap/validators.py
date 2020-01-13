@@ -72,8 +72,9 @@ class ValidateChoice(Validator):
         def _validate(_value, **kwargs):
             """Perform validation."""
             if _value not in self._choices:
+                choices = ", ".join(self._choices)
                 raise TestConfigurationError(
-                    f"value '{_value}' is not a valid choice"
+                    f"value '{_value}' is not a valid choice, choose from [{choices}]"
                 )
             return fn(_value, **kwargs)
 
