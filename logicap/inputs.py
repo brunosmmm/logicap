@@ -9,9 +9,10 @@ from logicap.config import (
 from logicap.validators import (
     validate_positive_integer,
     validate_string,
-    validate_list,
     ValidateChoice,
 )
+
+from logicap.util import AutoValidateList
 
 EVENT_TYPES = ("initial", "set", "clear", "toggle")
 _EVENT_DEPS = {
@@ -62,16 +63,10 @@ EVENT_OPT = {
 }
 
 
-@validate_list
+@AutoValidateList(EVENT_REQ, EVENT_OPT)
 def _validate_sequence(seq_data, **kwargs):
     """Validate sequence."""
-    sequence = {}
-    deferred = {}
-    for idx, evt in enumerate(seq_data):
-        _evt = validate_config(evt, EVENT_REQ, EVENT_OPT)
-        sequence[idx] = _evt
-
-    return sequence
+    return seq_data
 
 
 INPUT_REQ = {"sequence": _validate_sequence}
