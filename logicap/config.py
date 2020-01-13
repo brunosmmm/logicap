@@ -66,7 +66,14 @@ def validate_config(config, required_keys, optional_keys=None):
             key_loc = required_keys
         else:
             key_loc = optional_keys
-        transform = key_loc[key](config[key], **transformed_config)
+        try:
+            transform = key_loc[key](config[key], **transformed_config)
+        except DeferValidation as ex:
+            # deferred validation still not done, failure
+            readable_depends = ", ".join(ex.depends)
+            raise TestConfigurationError(
+                f"unresolved dependencies found for key '{key}': '{readable_depends}'"
+            )
 
         if transform is not None:
             transformed_config[key] = transform
