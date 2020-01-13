@@ -34,6 +34,29 @@ class ValidateType(Validator):
         return _validate
 
 
+class ValidateIntRange(Validator):
+    """Integer range validator."""
+
+    def __init__(self, start, end):
+        """Initialize."""
+        self._start = start
+        self._end = end
+
+    def __call__(self, fn):
+        """Decorator."""
+
+        @validate_integer
+        def _validate(_value, **kwargs):
+            """Perform validation."""
+            if _value < self._start or _value > self._end:
+                raise TestConfigurationError(
+                    "value out of [{}, {}] range".format(self._start, self._end)
+                )
+            return fn(_value, **kwargs)
+
+        return _validate
+
+
 def validate_integer(fn):
     """Validate integer."""
 
@@ -92,6 +115,17 @@ def validate_list(fn):
     @ValidateType((tuple, list))
     def _validate(_value, **kwargs):
         """Perform validation"""
+        return fn(_value, **kwargs)
+
+    return _validate
+
+
+def validate_int_percent(fn):
+    """Validate percent value (integer)."""
+
+    @ValidateIntRange(0, 100)
+    def _validate(_value, **kwargs):
+        """Perform validation."""
         return fn(_value, **kwargs)
 
     return _validate
