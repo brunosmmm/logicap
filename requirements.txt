@@ -1,1 +1,2 @@
 git+https://github.com/brunosmmm/dictator.git@master#egg=dictator
+git+https://github.com/brunosmmm/hdltools.git@master#egg=hdltools

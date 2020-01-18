@@ -17,8 +17,8 @@ output%.txt: logicaptb config%.txt input%.txt
 config%.txt: $(TEST_CONFIG_PATH)/config%.json cfggen
 	./cfggen $< --output $@
 
-input%.txt: $(TEST_CONFIG_PATH)/input%.json inputgen
-	./inputgen $< --output $@
+input%.txt: $(TEST_CONFIG_PATH)/input%.json
+	inputgen $< --output $@
 
 simulate1: output1.txt logicaptb
 
