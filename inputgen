@@ -4,7 +4,7 @@
 from argparse import ArgumentParser
 import json
 
-from logicap.config import TestConfigurationError
+from dictator.config import ConfigurationError
 from logicap.inputs import validate_input_config
 
 DEFAULT_VECTOR_SIZE = 32
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     except json.JSONDecodeError:
         print("ERROR: json decode error")
         exit(1)
-    except TestConfigurationError as ex:
+    except ConfigurationError as ex:
         print(f"ERROR: configuration error: '{ex}'")
         exit(1)
 

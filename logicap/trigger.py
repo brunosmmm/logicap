@@ -1,9 +1,9 @@
 """Trigger configuration."""
 
-from logicap.config import validate_config
+from dictator.config import validate_config
 
-from logicap.validators import validate_int_percent
-from logicap.util import (
+from dictator.validators import validate_int_percent
+from dictator.util import (
     default_validate_pos_int,
     default_validate_int,
     KeyDependency,

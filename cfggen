@@ -4,7 +4,7 @@
 from argparse import ArgumentParser
 import json
 
-from logicap.config import TestConfigurationError
+from dictator.config import ConfigurationError
 from logicap.trigger import validate_trigger_config
 
 if __name__ == "__main__":
@@ -27,7 +27,7 @@ if __name__ == "__main__":
     except json.JSONDecodeError:
         print("ERROR: json decode error")
         exit(1)
-    except TestConfigurationError as ex:
+    except ConfigurationError as ex:
         print(f"ERROR: configuration error: '{ex}'")
         exit(1)
 

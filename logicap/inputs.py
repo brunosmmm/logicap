@@ -1,10 +1,10 @@
 """Input generation."""
 
-from logicap.config import validate_config
+from dictator.config import validate_config
 
-from logicap.validators import validate_string, ValidateChoice
+from dictator.validators import validate_string, ValidateChoice
 
-from logicap.util import (
+from dictator.util import (
     AutoValidateList,
     KeyDependencyMap,
     AutoValidateDict,
