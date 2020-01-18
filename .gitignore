@@ -8,3 +8,4 @@ __pycache__
 config*.txt
 input*.txt
 output*.txt
+venv/
