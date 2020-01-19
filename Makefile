@@ -26,6 +26,6 @@ input%.txt: $(TEST_CONFIG_PATH)/input%.json
 simulate1: output1.txt logicaptb
 
 clean:
-	rm -rf logicaptb output*.txt config*.txt input*.txt
+	rm -rf logicaptb output*.txt config*.txt input*.txt *.vcd
 
 .PHONY: clean simulate
