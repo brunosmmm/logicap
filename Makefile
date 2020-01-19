@@ -14,6 +14,9 @@ logicaptb: $(TEST_PATH)/logicaptb.v $(SRC_FILES)
 output%.txt: logicaptb config%.txt input%.txt
 	./$< +configfile=config$(*F).txt +inputfile=input$(*F).txt +outputfile=output$(*F).txt
 
+input%.json: input%.vg
+	vgc $< --output $@
+
 config%.txt: $(TEST_CONFIG_PATH)/config%.json cfggen
 	./cfggen $< --output $@
 
