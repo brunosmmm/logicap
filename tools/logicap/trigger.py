@@ -2,17 +2,15 @@
 
 from dictator.config import validate_config
 
-from dictator.default import DEFAULT_VALIDATORS
-from dictator.validators import validate_int_percent
-from dictator.util import (
-    KeyDependency,
-    AutoValidateList,
-)
+from dictator.validators.default import DEFAULT_VALIDATORS
+from dictator.validators.integer import validate_percent_integer
+from dictator.validators.dependency import KeyDependency
+from dictator.validators.lists import SubListValidator
 
 TRIGGER_REQ_KEYS = {"mask": int, "type": int, "level": int}
 
 
-@AutoValidateList(TRIGGER_REQ_KEYS)
+@SubListValidator(TRIGGER_REQ_KEYS)
 def _validate_trigger_config(trigger_config, **kwargs):
     """Validate trigger configuration."""
     if len(trigger_config) < 8:
@@ -28,7 +26,7 @@ def _validate_trigger_config(trigger_config, **kwargs):
     return trigger_config
 
 
-@validate_int_percent
+@validate_percent_integer
 @KeyDependency("mem_size")
 def _validate_trigger_pos(trigger_pos, **kwargs):
     """Validate trigger position."""
