@@ -9,3 +9,4 @@ config*.txt
 input*.txt
 output*.txt
 venv/
+.metals/
