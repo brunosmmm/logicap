@@ -12,10 +12,6 @@ class AXIStreamIO(params: AXIStreamInterfaceParams) extends Bundle {
   val tdata = Input(UInt(params.dataWidth.W))
   val tvalid = Input(Bool())
   val tready = Output(Bool())
-  if (params.hasTlast) {
-    val tlast = Input(Bool())
-  }
-  if (params.tuserWidth > 0) {
-    val tuser = Input(Bits(params.tuserWidth.W))
-  }
+  val tlast = if (params.hasTlast) Some(Input(Bool())) else None
+  val tuser = if (params.tuserWidth > 0) Some(Input(Bits(params.tuserWidth.W))) else None
 }
