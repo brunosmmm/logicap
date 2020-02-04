@@ -4,9 +4,11 @@ import chisel3._
 import chisel3.util._
 
 class TriggerConfiguration(levelCount: Int, logicWidth: Int) extends Bundle {
-  val masks = Input(Vec(levelCount, UInt(logicWidth.W)))
-  val levels = Input(Vec(levelCount, UInt(logicWidth.W)))
-  val types = Input(Vec(levelCount, UInt(logicWidth.W)))
+  val masks = Vec(levelCount, UInt(logicWidth.W))
+  val levels = Vec(levelCount, UInt(logicWidth.W))
+  val types = Vec(levelCount, UInt(logicWidth.W))
+  // why can't it figure out?
+  override def cloneType = (new TriggerConfiguration(levelCount, logicWidth)).asInstanceOf[this.type]
 }
 
 class TriggerLogic(levelCount: Int = 8, logicWidth: Int = 32) extends Module {
@@ -18,7 +20,8 @@ class TriggerLogic(levelCount: Int = 8, logicWidth: Int = 32) extends Module {
       val triggered = Output(Bool())
       val armed = Output(Bool())
       val dinput = Input(UInt(logicWidth.W))
-      val config = IO(new TriggerConfiguration(levelCount, logicWidth))
+      val config = Input(new TriggerConfiguration(levelCount, logicWidth))
+      val sampleClk = Input(Clock())
     })
 
   // CONFIGURATION PLACEHOLDER
@@ -32,7 +35,6 @@ class TriggerLogic(levelCount: Int = 8, logicWidth: Int = 32) extends Module {
   io.triggered := isTriggered
 
   val triggerLevel = RegInit(0.U(log2Up(levelCount).W))
-  val oldInputs = RegInit(0.U(logicWidth.W))
 
   // consts
   private val TriggerLevel = 0.U
@@ -42,13 +44,49 @@ class TriggerLogic(levelCount: Int = 8, logicWidth: Int = 32) extends Module {
 
   // trigger conditions
   val triggerCondition = RegInit(VecInit(Seq.fill(logicWidth)(false.B)))
-  val levelCondition = Wire(UInt(logicWidth.W))
   val currentMasked = Wire(UInt(logicWidth.W))
   currentMasked := trigMasks(triggerLevel) & io.dinput
 
-  // save inputs from this clock cycle
-  when (!io.ignore) {
-    oldInputs := io.dinput
+  // save inputs from this clock cycle (clocked by sampleClk)
+  withClock(io.sampleClk) {
+    val oldInputs = RegInit(0.U(logicWidth.W))
+    when (!io.ignore) {
+      oldInputs := io.dinput
+    }
+
+    // generate trigger conditions
+    for (i <- 0 to logicWidth-1) {
+      when (isArmed && !io.ignore) {
+        when (currentMasked(i)) {
+          when (trigTypes(triggerLevel)(i) === TriggerLevel) {
+            when (trigLevels(triggerLevel)(i) === io.dinput(i)) {
+              triggerCondition(i) := true.B
+            }.otherwise {
+              triggerCondition(i) := false.B
+            }
+          }.otherwise {
+            // edge
+            when (trigLevels(triggerLevel)(i) === TriggerRise) {
+              when (oldInputs(i) === 0.U && io.dinput(i) === 1.U) {
+                triggerCondition(i) := true.B
+              }.otherwise {
+                triggerCondition(i) := false.B
+              }
+            }.otherwise {
+              when (oldInputs(i) === 1.U && io.dinput(i) === 0.U) {
+                triggerCondition(i) := true.B
+              }.otherwise {
+                triggerCondition(i) := false.B
+              }
+            }
+          }
+        }.otherwise {
+          triggerCondition(i) := false.B
+        }
+      }.otherwise {
+        triggerCondition(i) := false.B
+      }
+    }
   }
 
   // overall trigger logic
@@ -62,7 +100,7 @@ class TriggerLogic(levelCount: Int = 8, logicWidth: Int = 32) extends Module {
         isArmed := false.B
         isTriggered := true.B
       }.otherwise {
-        when (triggerCondition.asUInt === levelCondition) {
+        when (triggerCondition.asUInt === trigMasks(triggerLevel)) {
           when (triggerLevel < (levelCount - 1).U) {
             triggerLevel := triggerLevel + 1.U
           }.otherwise {
@@ -85,41 +123,8 @@ class TriggerLogic(levelCount: Int = 8, logicWidth: Int = 32) extends Module {
     }
   }
 
-  // generate trigger conditions
-  for (i <- 0 to logicWidth-1) {
-    when (isArmed && !io.ignore) {
-      when (currentMasked(i)) {
-        when (trigTypes(triggerLevel)(i) === TriggerLevel) {
-          when (trigLevels(triggerLevel)(i) === io.dinput(i)) {
-            triggerCondition(i) := true.B
-          }.otherwise {
-            triggerCondition(i) := false.B
-          }
-        }.otherwise {
-          // edge
-          when (trigLevels(triggerLevel)(i) === TriggerRise) {
-            when (oldInputs(i) === 0.U && io.dinput(i) === 1.U) {
-              triggerCondition(i) := true.B
-            }.otherwise {
-              triggerCondition(i) := false.B
-            }
-          }.otherwise {
-            when (oldInputs(i) === 1.U && io.dinput(i) === 0.U) {
-              triggerCondition(i) := true.B
-            }.otherwise {
-              triggerCondition(i) := false.B
-            }
-          }
-        }
-      }.otherwise {
-        triggerCondition(i) := false.B
-      }
-    }.otherwise {
-      triggerCondition(i) := false.B
-    }
-  }
 }
 
 object TriggerDriver extends App {
-  chisel3.Driver.execute(args, () => new TriggerLogic)
+  chisel3.Driver.execute(args, () => new TriggerLogic())
 }
