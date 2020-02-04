@@ -85,7 +85,6 @@ class TriggerLogic(levelCount: Int = 8, logicWidth: Int = 32) extends Module {
     }
   }
 
-
   // generate trigger conditions
   for (i <- 0 to logicWidth-1) {
     when (isArmed && !io.ignore) {
