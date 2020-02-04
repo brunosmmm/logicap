@@ -11,28 +11,32 @@ class TriggerConfiguration(levelCount: Int, logicWidth: Int) extends Bundle {
   override def cloneType = (new TriggerConfiguration(levelCount, logicWidth)).asInstanceOf[this.type]
 }
 
+class TriggerControl extends Bundle {
+  val arm = Input(Bool())
+  val abort = Input(Bool())
+  val ignore = Input(Bool())
+  val triggered = Output(Bool())
+  val armed = Output(Bool())
+}
+
 class TriggerLogic(levelCount: Int = 8, logicWidth: Int = 32) extends Module {
   val io = IO(
     new Bundle {
-      val arm = Input(Bool())
-      val abort = Input(Bool())
-      val ignore = Input(Bool())
-      val triggered = Output(Bool())
-      val armed = Output(Bool())
+      val control = new TriggerControl
       val dinput = Input(UInt(logicWidth.W))
       val config = Input(new TriggerConfiguration(levelCount, logicWidth))
       val sampleClk = Input(Clock())
     })
 
-  // CONFIGURATION PLACEHOLDER
+  // configurations
   val trigMasks = RegInit(VecInit(Seq.fill(levelCount)(0.U(logicWidth.W))))
   val trigLevels = RegInit(VecInit(Seq.fill(levelCount)(0.U(logicWidth.W))))
   val trigTypes = RegInit(VecInit(Seq.fill(levelCount)(0.U(logicWidth.W))))
 
   val isArmed = RegInit(false.B)
   val isTriggered = RegInit(false.B)
-  io.armed := isArmed
-  io.triggered := isTriggered
+  io.control.armed := isArmed
+  io.control.triggered := isTriggered
 
   val triggerLevel = RegInit(0.U(log2Up(levelCount).W))
 
@@ -50,13 +54,13 @@ class TriggerLogic(levelCount: Int = 8, logicWidth: Int = 32) extends Module {
   // save inputs from this clock cycle (clocked by sampleClk)
   withClock(io.sampleClk) {
     val oldInputs = RegInit(0.U(logicWidth.W))
-    when (!io.ignore) {
+    when (!io.control.ignore) {
       oldInputs := io.dinput
     }
 
     // generate trigger conditions
     for (i <- 0 to logicWidth-1) {
-      when (isArmed && !io.ignore) {
+      when (isArmed && !io.control.ignore) {
         when (currentMasked(i)) {
           when (trigTypes(triggerLevel)(i) === TriggerLevel) {
             when (trigLevels(triggerLevel)(i) === io.dinput(i)) {
@@ -90,8 +94,8 @@ class TriggerLogic(levelCount: Int = 8, logicWidth: Int = 32) extends Module {
   }
 
   // overall trigger logic
-  when (isArmed && !io.ignore) {
-    when (io.abort) {
+  when (isArmed && !io.control.ignore) {
+    when (io.control.abort) {
       isArmed := false.B
       triggerLevel := 0.U
     }.otherwise {
@@ -112,7 +116,7 @@ class TriggerLogic(levelCount: Int = 8, logicWidth: Int = 32) extends Module {
       }
     }
   }.otherwise {
-    when (io.arm) {
+    when (io.control.arm) {
       isArmed := true.B
       isTriggered := false.B
       triggerLevel := 0.U
