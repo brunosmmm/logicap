@@ -4,7 +4,7 @@ import chisel3._
 import chisel3.util._
 
 /** AXI Stream interface parameters **/
-case class AXIStreamInterfaceParams(dataWidth: Int, hasTlast: Bool = false, tuserWidth: Int = 0)
+case class AXIStreamInterfaceParams(dataWidth: Int, hasTlast: Boolean = false, tuserWidth: Int = 0)
 
 
 /** AXI Stream IO **/
