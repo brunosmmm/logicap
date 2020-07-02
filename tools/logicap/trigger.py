@@ -2,8 +2,10 @@
 
 from dictator.config import validate_config
 
-from dictator.validators.default import DEFAULT_VALIDATORS
-from dictator.validators.integer import validate_percent_integer
+from dictator.validators.integer import (
+    validate_percent_integer,
+    validate_positive_integer,
+)
 from dictator.validators.dependency import KeyDependency
 from dictator.validators.lists import SubListValidator
 
@@ -37,9 +39,9 @@ def _validate_trigger_pos(trigger_pos, **kwargs):
 CONFIGURATION_REQ_KEYS = {
     "trigger_config": _validate_trigger_config,
     "trigger_pos": _validate_trigger_pos,
-    "mem_size": DEFAULT_VALIDATORS.positive_integer,
+    "mem_size": validate_positive_integer,
 }
-CONFIGURATION_OPT_KEYS = ()
+CONFIGURATION_OPT_KEYS = {}
 
 
 def validate_trigger_config(trigger_config):
