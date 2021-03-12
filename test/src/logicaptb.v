@@ -114,8 +114,8 @@ module logicaptb
          #2; // wait for next clock cycle
       end
       // finish simulation if we get here, as there is no more input
-      $display("INFO: no more input available, terminating");
-      $finish();
+      $display("INFO: no more input available, waiting for 100 cycles...");
+      #100 $finish();
    end
 
    // glue
