@@ -11,6 +11,9 @@ all: logicaptb
 logicaptb: $(TEST_PATH)/logicaptb.v $(SRC_FILES)
 	iverilog $(SIM_FLAGS) -o $@ -y$(SRC_PATH) $<
 
+triggertb: $(TEST_PATH)/triggertb.v
+	iverilog $(SIM_FLAGS) -o $@ -y$(SRC_PATH) $<
+
 output%.txt: logicaptb config%.txt input%.txt
 	./$< +configfile=config$(*F).txt +inputfile=input$(*F).txt +outputfile=output$(*F).txt
 
