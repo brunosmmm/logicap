@@ -1,5 +1,6 @@
 module logicaptb
   #(
+    parameter integer input_size = 64,
     parameter integer size = 32,
     parameter integer max_div = 32,
     parameter integer fifo_depth = 512,
@@ -21,11 +22,11 @@ module logicaptb
 
    // hack: stuff all configuration registers into an array
    reg [size-1:0]             trigger_cfg [0:24];
-   reg [size+1:0]             input_vector;
+   reg [input_size-1:0]               input_vector;
    wire [31:0]                output_vector;
-   assign capture_arm = input_vector[size];
-   assign capture_abort = input_vector[size+1];
-   assign dinput = input_vector[size-1:0];
+   assign capture_arm = input_vector[input_size-1];
+   assign capture_abort = input_vector[input_size-2];
+   assign dinput = input_vector[31:0];
 
    // trigger / capture parameters
    wire [saddr_w-1:0]         post_capture_count = trigger_cfg[24];

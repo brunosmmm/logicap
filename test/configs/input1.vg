@@ -1,6 +1,7 @@
-#vector_size 32
+#vector_size 64
 
-define ARM (1<<28)
+define ARM (1<<63)
+define ABORT (1<<62)
 
 initial 0x00000000
 set ARM at +2
